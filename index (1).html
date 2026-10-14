@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SHEblooms · Salud, Hormonas, Energía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F4F2F7; --surface:#FFFFFF; --ink:#272040; --muted:#6B6585; --line:#E2DEEA;
+  --menstrual:#C23A5E; --folicular:#3F9673; --ovulatoria:#D99A1E; --lutea:#7A58B8;
+  --accent:#272040; --on-accent:#FFFFFF;
+  --serif:"Young Serif",Georgia,"Times New Roman",serif;
+  --sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16131F; --surface:#211D2E; --ink:#EEEAF6; --muted:#A49DBB; --line:#342E45;
+    --menstrual:#E0607F; --folicular:#5DBB93; --ovulatoria:#EDB547; --lutea:#A486DD;
+    --accent:#EEEAF6; --on-accent:#16131F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16131F; --surface:#211D2E; --ink:#EEEAF6; --muted:#A49DBB; --line:#342E45;
+  --menstrual:#E0607F; --folicular:#5DBB93; --ovulatoria:#EDB547; --lutea:#A486DD;
+  --accent:#EEEAF6; --on-accent:#16131F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;min-height:100%;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--lutea);outline-offset:2px;border-radius:6px}
+.app{max-width:520px;margin:0 auto;padding:16px 20px 110px}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:8px 0 4px}
+.brand{font-family:var(--serif);font-size:1.6rem;letter-spacing:-.01em}
+.iconbtn{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;color:var(--muted);font-size:.9rem}
+.iconbtn:hover{color:var(--ink)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.15}
+h2{font-size:1.35rem}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+.view{display:none}
+.view.active{display:block}
+
+/* Hoy */
+.date-line{color:var(--muted);margin:2px 0 0;text-transform:none}
+.ring-wrap{position:relative;width:min(300px,82vw);margin:18px auto 6px;aspect-ratio:1}
+.ring-wrap svg{width:100%;height:100%;display:block}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-day{font-family:var(--serif);font-size:3.6rem;line-height:1}
+.ring-of{color:var(--muted);font-size:.95rem;margin-top:4px}
+.phase-title{font-family:var(--serif);font-size:2rem;text-align:center;margin-top:10px}
+.phase-sub{text-align:center;color:var(--muted);margin:4px 0 22px}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;font-size:.8rem;color:var(--muted);margin-bottom:18px}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
+.panel{background:var(--surface);border-radius:18px;padding:20px;margin-bottom:14px;border:1px solid var(--line)}
+.panel.phase-panel{border-left:5px solid var(--pc)}
+.panel h3{font-size:1.1rem;margin-bottom:8px}
+.panel p{margin:0 0 10px}
+.panel p:last-child{margin-bottom:0}
+ul.tips{margin:0;padding-left:1.1em}
+ul.tips li{margin-bottom:6px}
+.actions{display:grid;gap:10px;margin:18px 0}
+.btn{border:none;border-radius:14px;padding:14px 18px;font-weight:600;cursor:pointer;font-size:1rem;text-align:center}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.danger{background:transparent;border:1.5px solid var(--menstrual);color:var(--menstrual)}
+.btn:hover{filter:brightness(1.05)}
+.disclaimer{font-size:.8rem;color:var(--muted);text-align:center;margin-top:22px;padding:0 10px}
+
+/* Calendario */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin:14px 0 12px}
+.cal-head h2{text-transform:capitalize}
+.navbtn{background:var(--surface);border:1px solid var(--line);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.1rem}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.dow{text-align:center;font-size:.75rem;color:var(--muted);padding-bottom:4px}
+.day{position:relative;aspect-ratio:1;border-radius:12px;border:none;cursor:pointer;background:color-mix(in srgb,var(--c,transparent) 16%,var(--surface));display:flex;align-items:center;justify-content:center;font-size:.95rem;padding:0}
+.day.period{background:var(--menstrual);color:#fff;font-weight:600}
+.day.predicted-period{background:color-mix(in srgb,var(--menstrual) 34%,var(--surface))}
+.day.future{opacity:.75}
+.day.today{box-shadow:0 0 0 2.5px var(--ink)}
+.day.empty{background:none;cursor:default}
+.day .dot{position:absolute;bottom:5px;left:50%;width:5px;height:5px;border-radius:50%;background:var(--ink);transform:translateX(-50%)}
+.day.period .dot{background:#fff}
+.cal-note{margin-top:14px;font-size:.85rem;color:var(--muted)}
+
+/* Síntomas */
+.date-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 6px}
+.date-nav h2{font-size:1.25rem;text-align:center;flex:1}
+.date-phase{text-align:center;font-size:.9rem;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.energy{display:flex;gap:8px}
+.energy button{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 0;cursor:pointer;font-weight:600}
+.energy button[aria-pressed="true"]{background:var(--ovulatoria);border-color:var(--ovulatoria);color:#272040}
+.scale-labels{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-top:6px}
+textarea{width:100%;min-height:80px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);resize:vertical}
+.pattern{display:grid;gap:10px}
+.pattern-row{display:flex;gap:12px;align-items:flex-start}
+.pattern-row .sw{width:10px;height:10px;border-radius:50%;background:var(--c);margin-top:7px;flex:none}
+.pattern-row strong{font-weight:600}
+
+/* Formularios */
+label.field{display:block;margin-bottom:16px}
+label.field span{display:block;font-weight:600;margin-bottom:6px}
+label.field small{display:block;color:var(--muted);margin-top:4px}
+input[type=date],input[type=number],input[type=email],input[type=password]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--surface)}
+.onboard{padding-top:30px}
+.onboard h1{font-size:2.4rem;margin-bottom:10px}
+.onboard .tagline{color:var(--lutea);font-weight:600;margin:-4px 0 14px}
+.onboard .lead{color:var(--muted);margin:0 0 26px;max-width:42ch}
+.linkbtn{background:none;border:none;color:var(--lutea);font-weight:600;cursor:pointer;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
+
+/* Navegación inferior */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
+nav.tabs .inner{max-width:520px;margin:0 auto;display:flex}
+nav.tabs button{flex:1;background:none;border:none;padding:12px 4px 14px;cursor:pointer;color:var(--muted);font-size:.85rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current="page"]{color:var(--ink)}
+nav.tabs button[aria-current="page"] svg{color:var(--lutea)}
+
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--accent);color:var(--on-accent);padding:10px 18px;border-radius:999px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top" id="topbar" hidden>
+    <div class="brand" data-nombre></div>
+    <button class="iconbtn" id="btnAjustes">Ajustes</button>
+  </header>
+
+  <!-- Cargando -->
+  <section class="view active" id="v-cargando">
+    <p class="muted" style="text-align:center;margin-top:40vh">Cargando…</p>
+  </section>
+
+  <!-- Acceso -->
+  <section class="view onboard" id="v-auth">
+    <h1 data-nombre></h1>
+    <p class="tagline" data-subtitulo></p>
+    <p class="lead">Tu ciclo tiene fases, y cada una pide cosas distintas. Entra o crea una cuenta para guardar tus datos de forma privada.</p>
+    <form id="formAuth">
+      <label class="field"><span>Correo electrónico</span>
+        <input type="email" name="email" required autocomplete="email"></label>
+      <label class="field"><span>Contraseña</span>
+        <input type="password" name="password" required minlength="6" autocomplete="current-password">
+        <small>Mínimo 6 caracteres.</small></label>
+      <div class="actions">
+        <button class="btn primary" type="submit" data-accion="entrar">Entrar</button>
+        <button class="btn ghost" type="submit" data-accion="crear">Crear cuenta nueva</button>
+      </div>
+      <p class="muted small" id="authError" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Bienvenida -->
+  <section class="view onboard" id="v-onboard">
+    <h1 data-nombre></h1>
+    <p class="tagline" data-subtitulo></p>
+    <p class="lead">Cuéntanos tres datos y te diremos en qué momento del ciclo estás y cómo cuidarte.</p>
+    <form id="formOnboard"></form>
+    <button class="linkbtn" id="btnDemo">Prefiero probar con datos de ejemplo</button>
+  </section>
+
+  <section class="view" id="v-hoy"></section>
+  <section class="view" id="v-cal"></section>
+  <section class="view" id="v-sint"></section>
+
+  <!-- Ajustes -->
+  <section class="view" id="v-ajustes">
+    <h2 style="margin:14px 0 18px">Ajustes del ciclo</h2>
+    <form id="formAjustes"></form>
+    <div class="actions">
+      <button class="btn ghost" id="btnDemo2">Cargar datos de ejemplo</button>
+      <button class="btn danger" id="btnBorrar">Borrar todos mis datos</button>
+    </div>
+    <div class="panel">
+      <h3>Tu cuenta</h3>
+      <p class="muted" id="cuentaEmail"></p>
+      <button class="btn ghost" id="btnSalir" style="width:100%">Cerrar sesión</button>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" id="tabs" hidden>
+  <div class="inner">
+    <button data-view="hoy" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="4" r="2" fill="currentColor"/></svg>Hoy</button>
+    <button data-view="cal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendario</button>
+    <button data-view="sint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>Síntomas</button>
+  </div>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script>
+/* =========================================================
+   CONFIGURACIÓN
+   Para cambiar el nombre de la app, cambia solo esta línea.
+   ========================================================= */
+const APP_NOMBRE = "SHEblooms";
+const APP_SUBTITULO = "Salud, Hormonas, Energía";
+
+// Conexión con Supabase (clave pública: es seguro que esté aquí)
+const SUPABASE_URL = "https://scafwxkybefbrbfsgrqr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_FS9EeTorTFxb4iQ0Yy4XmQ_yVlZRCIw";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ---------- Contenido ---------- */
+const FASES = {
+  menstrual:{nombre:"Fase menstrual", color:"--menstrual",
+    texto:"Tu cuerpo está renovando la capa interna del útero. Las hormonas están en su punto más bajo, así que es normal tener menos energía y más ganas de recogerte.",
+    tips:["Prioriza el descanso y no te exijas el mismo ritmo de siempre.","El calor local en el abdomen suele aliviar los calambres.","Alimentos con hierro, como legumbres o espinacas, ayudan a reponer lo que pierdes."]},
+  folicular:{nombre:"Fase folicular", color:"--folicular",
+    texto:"Los estrógenos empiezan a subir y con ellos suelen volver la energía, la motivación y la claridad mental. Es un buen momento para empezar cosas.",
+    tips:["Aprovecha para planificar o arrancar proyectos nuevos.","Tu cuerpo tolera bien entrenamientos más intensos.","Platos frescos y variados encajan bien con esta fase."]},
+  ovulatoria:{nombre:"Fase ovulatoria", color:"--ovulatoria",
+    texto:"Es el pico hormonal del ciclo. Muchas mujeres se sienten con más energía, más sociables y más seguras de sí mismas en estos días.",
+    tips:["Buen momento para conversaciones importantes o presentaciones.","Puedes probar tu entrenamiento más exigente.","Hidrátate bien: la temperatura corporal sube ligeramente."]},
+  lutea:{nombre:"Fase lútea", color:"--lutea",
+    texto:"La progesterona toma el relevo. Al principio te sentirás estable, pero hacia el final pueden aparecer cansancio, hinchazón, antojos o cambios de humor.",
+    tips:["Baja un poco la intensidad del ejercicio si lo notas pesado.","Los antojos son normales: elige snacks con proteína y fibra.","Reserva ratos tranquilos para ti, sobre todo los últimos días."]}
+};
+const ORDEN = ["menstrual","folicular","ovulatoria","lutea"];
+const SINTOMAS = ["Dolor abdominal","Dolor lumbar","Dolor de cabeza","Hinchazón","Cansancio","Sensibilidad en el pecho","Acné","Antojos","Insomnio","Irritabilidad","Ansiedad","Tristeza","Náuseas","Flujo abundante"];
+
+/* ---------- Fechas ---------- */
+const DAY = 86400000;
+const pad = n => String(n).padStart(2,"0");
+const toKey = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fromKey = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y,m-1,d); };
+const today = () => { const n = new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate()); };
+const addDays = (d,n) => new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const diffDays = (a,b) => Math.round((b-a)/DAY);
+const fmtLargo = d => d.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"});
+const fmtCorto = d => d.toLocaleDateString("es-ES",{day:"numeric",month:"long"});
+
+/* ---------- Estado en memoria ---------- */
+const vacio = () => ({config:null, periodos:[], sintomas:{}});
+let state = vacio();
+let usuaria = null;   // usuaria con sesión iniciada
+
+/* =========================================================
+   BASE DE DATOS (Supabase)
+   Todas las lecturas y escrituras pasan por aquí.
+   ========================================================= */
+function comprobar({error}, mensaje){
+  if(error){ console.error(error); toast(mensaje || "No se pudo guardar. Revisa tu conexión."); throw error; }
+}
+
+async function cargarDatos(){
+  const [perfil, periodos, registros] = await Promise.all([
+    sb.from("perfiles").select("*").maybeSingle(),
+    sb.from("periodos").select("fecha_inicio"),
+    sb.from("registros_diarios").select("fecha, sintomas, energia, nota")
+  ]);
+  comprobar(perfil, "No se pudieron cargar tus datos");
+  comprobar(periodos, "No se pudieron cargar tus datos");
+  comprobar(registros, "No se pudieron cargar tus datos");
+  state = vacio();
+  if(perfil.data){
+    state.config = {ultimaRegla: perfil.data.ultima_regla, ciclo: perfil.data.duracion_ciclo, regla: perfil.data.duracion_regla};
+  }
+  state.periodos = periodos.data.map(p => p.fecha_inicio);
+  registros.data.forEach(r => { state.sintomas[r.fecha] = {lista: r.sintomas || [], energia: r.energia || 0, nota: r.nota || ""}; });
+}
+
+async function guardarPerfil(cfg){
+  comprobar(await sb.from("perfiles").upsert({
+    id: usuaria.id, ultima_regla: cfg.ultimaRegla, duracion_ciclo: cfg.ciclo, duracion_regla: cfg.regla
+  }));
+}
+
+async function anadirRegla(fecha){
+  comprobar(await sb.from("periodos").upsert(
+    {usuaria_id: usuaria.id, fecha_inicio: fecha},
+    {onConflict: "usuaria_id,fecha_inicio", ignoreDuplicates: true}
+  ));
+}
+
+async function guardarDia(fecha, dia){
+  if(!dia){
+    comprobar(await sb.from("registros_diarios").delete().eq("usuaria_id", usuaria.id).eq("fecha", fecha));
+    return;
+  }
+  comprobar(await sb.from("registros_diarios").upsert({
+    usuaria_id: usuaria.id, fecha, sintomas: dia.lista, energia: dia.energia || null, nota: dia.nota || null
+  }, {onConflict: "usuaria_id,fecha"}));
+}
+
+async function borrarTodo(){
+  comprobar(await sb.from("registros_diarios").delete().eq("usuaria_id", usuaria.id));
+  comprobar(await sb.from("periodos").delete().eq("usuaria_id", usuaria.id));
+  comprobar(await sb.from("perfiles").delete().eq("id", usuaria.id));
+}
+
+/* ---------- Cálculo del ciclo ---------- */
+function rangos(cfg){
+  const C = cfg.ciclo, P = cfg.regla;
+  const ov = C - 14;
+  const fEnd = Math.max(P+1, ov-2);
+  const oStart = fEnd+1, oEnd = Math.min(oStart+2, C-1);
+  return {menstrual:[1,P], folicular:[P+1,fEnd], ovulatoria:[oStart,oEnd], lutea:[oEnd+1,C]};
+}
+function faseDeDia(dia, cfg){
+  const r = rangos(cfg);
+  for(const f of ORDEN){ if(dia>=r[f][0] && dia<=r[f][1]) return f; }
+  return "lutea";
+}
+function ultimaRegla(){
+  const ps = [...state.periodos].sort();
+  return ps.length ? fromKey(ps[ps.length-1]) : fromKey(state.config.ultimaRegla);
+}
+function infoFecha(fecha){
+  const cfg = state.config, C = cfg.ciclo;
+  const ps = [...state.periodos].sort().map(fromKey).filter(p => p<=fecha);
+  const base = ps.length ? ps[ps.length-1] : ultimaRegla();
+  let d = diffDays(base, fecha);
+  if(fecha < base){ d = ((d % C) + C) % C; }
+  else if(d >= C){
+    const esUltima = +base === +ultimaRegla();
+    if(esUltima && fecha <= today()) return {dia:d+1, fase:"lutea", retraso:d - C + 1};
+    d = d % C;
+  }
+  return {dia:d+1, fase:faseDeDia(d+1,cfg), retraso:0};
+}
+function diasHastaRegla(){
+  return diffDays(today(), addDays(ultimaRegla(), state.config.ciclo));
+}
+
+/* ---------- Utilidades UI ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let vistaActual = "hoy";
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(()=>t.classList.remove("show"), 2600); }
+function mostrar(id){
+  document.querySelectorAll(".view").forEach(el => el.classList.remove("active"));
+  $("#v-"+id).classList.add("active");
+}
+function irA(v){
+  vistaActual = v;
+  document.querySelectorAll("nav.tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.view===v ? "page" : "false"));
+  render();
+  window.scrollTo(0,0);
+}
+async function ocupado(boton, tarea){
+  if(boton){ boton.disabled = true; boton.style.opacity = .6; }
+  try{ await tarea(); }catch(e){}
+  if(boton){ boton.disabled = false; boton.style.opacity = ""; }
+}
+
+/* ---------- Formularios de ciclo ---------- */
+function htmlCampos(cfg){
+  const hoy = toKey(today());
+  const ur = cfg ? toKey(ultimaRegla()) : "";
+  return `
+    <label class="field"><span>¿Cuándo empezó tu última regla?</span>
+      <input type="date" name="ultima" required max="${hoy}" value="${ur}"></label>
+    <label class="field"><span>¿Cada cuántos días te viene, más o menos?</span>
+      <input type="number" name="ciclo" min="21" max="40" required value="${cfg?cfg.ciclo:28}">
+      <small>Lo habitual está entre 21 y 35 días. Si no lo sabes, deja 28.</small></label>
+    <label class="field"><span>¿Cuántos días te suele durar?</span>
+      <input type="number" name="regla" min="2" max="8" required value="${cfg?cfg.regla:5}"></label>
+    <button class="btn primary" type="submit" style="width:100%">${cfg?"Guardar cambios":"Empezar"}</button>`;
+}
+function leerForm(form){
+  const f = new FormData(form);
+  return {
+    ultima: f.get("ultima"),
+    ciclo: Math.min(40, Math.max(21, parseInt(f.get("ciclo"),10)||28)),
+    regla: Math.min(8, Math.max(2, parseInt(f.get("regla"),10)||5))
+  };
+}
+async function guardarCiclo(ultima, ciclo, regla){
+  const cfg = {ultimaRegla: ultima, ciclo, regla};
+  await guardarPerfil(cfg);
+  // La fecha indicada pasa a ser la última regla: se borran las posteriores
+  comprobar(await sb.from("periodos").delete().eq("usuaria_id", usuaria.id).gte("fecha_inicio", ultima));
+  await anadirRegla(ultima);
+  state.config = cfg;
+  state.periodos = state.periodos.filter(p => p < ultima).concat(ultima);
+}
+
+/* ---------- Vista: Hoy ---------- */
+function anillo(dia, cfg, retraso){
+  const C = cfg.ciclo, r = rangos(cfg);
+  const R = 100, cx = 120, cy = 120, circ = 2*Math.PI*R, gap = 3;
+  const faseActual = faseDeDia(Math.min(dia,C),cfg);
+  let arcos = "";
+  for(const f of ORDEN){
+    const [a,b] = r[f]; const len = (b-a+1)/C*circ - gap;
+    const off = -((a-1)/C)*circ;
+    arcos += `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="var(${FASES[f].color})" stroke-width="20" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 ${cx} ${cy})" opacity="${f===faseActual?1:.35}"/>`;
+  }
+  const pos = retraso ? C : dia;
+  const ang = ((pos-0.5)/C)*2*Math.PI - Math.PI/2;
+  const mx = cx + R*Math.cos(ang), my = cy + R*Math.sin(ang);
+  return `<svg viewBox="0 0 240 240" role="img" aria-label="Día ${dia} de un ciclo de ${C} días">
+    ${arcos}
+    <circle cx="${mx.toFixed(2)}" cy="${my.toFixed(2)}" r="15" fill="var(--surface)" stroke="var(--ink)" stroke-width="4"/>
+  </svg>`;
+}
+function renderHoy(){
+  const cfg = state.config, hoy = today();
+  const {dia, fase, retraso} = infoFecha(hoy);
+  const F = FASES[fase];
+  const faltan = diasHastaRegla();
+  let sub;
+  if(retraso>0) sub = retraso===1 ? "Tu regla se retrasa 1 día" : `Tu regla se retrasa ${retraso} días`;
+  else if(fase==="menstrual") sub = `Día ${dia} de tu regla`;
+  else if(faltan===0) sub = "Tu regla debería empezar hoy";
+  else if(faltan===1) sub = "Tu próxima regla, mañana";
+  else sub = `Faltan ${faltan} días para tu próxima regla`;
+  const anotadoHoy = state.sintomas[toKey(hoy)];
+  $("#v-hoy").innerHTML = `
+    <p class="date-line">${esc(fmtLargo(hoy))}</p>
+    <div class="ring-wrap">${anillo(dia,cfg,retraso)}
+      <div class="ring-center"><div class="ring-day">${dia}</div><div class="ring-of">día de ${cfg.ciclo}</div></div>
+    </div>
+    <div class="legend">${ORDEN.map(f=>`<span style="--c:var(${FASES[f].color})">${FASES[f].nombre.replace("Fase ","")}</span>`).join("")}</div>
+    <div class="phase-title" style="color:var(${F.color})">${F.nombre}</div>
+    <p class="phase-sub">${sub}</p>
+    <div class="panel phase-panel" style="--pc:var(${F.color})">
+      <h3>Qué está pasando en tu cuerpo</h3>
+      <p>${F.texto}</p>
+    </div>
+    <div class="panel">
+      <h3>Cómo cuidarte estos días</h3>
+      <ul class="tips">${F.tips.map(t=>`<li>${t}</li>`).join("")}</ul>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="btnAnotar">${anotadoHoy?"Revisar cómo me siento hoy":"Anotar cómo me siento hoy"}</button>
+      ${fase!=="menstrual" || retraso ? `<button class="btn ghost" id="btnRegla">Me ha venido la regla hoy</button>` : ""}
+    </div>
+    <p class="disclaimer">${esc(APP_NOMBRE)} ofrece información general y estimaciones. No sustituye la consulta con un profesional sanitario.</p>`;
+  $("#btnAnotar").onclick = () => { fechaSint = hoy; irA("sint"); };
+  const br = $("#btnRegla");
+  if(br) br.onclick = () => ocupado(br, async () => {
+    const k = toKey(hoy);
+    await anadirRegla(k);
+    if(!state.periodos.includes(k)) state.periodos.push(k);
+    render(); toast("Anotado: hoy empieza tu regla");
+  });
+}
+
+/* ---------- Vista: Calendario ---------- */
+let mesCal = new Date(today().getFullYear(), today().getMonth(), 1);
+function renderCal(){
+  const hoy = today(), cfg = state.config;
+  const y = mesCal.getFullYear(), m = mesCal.getMonth();
+  const primero = new Date(y,m,1), nDias = new Date(y,m+1,0).getDate();
+  const offset = (primero.getDay()+6)%7;
+  const periodosReales = new Set();
+  state.periodos.forEach(k => { const s = fromKey(k); for(let i=0;i<cfg.regla;i++) periodosReales.add(toKey(addDays(s,i))); });
+  let celdas = ["L","M","X","J","V","S","D"].map(d=>`<div class="dow" aria-hidden="true">${d}</div>`).join("");
+  for(let i=0;i<offset;i++) celdas += `<div class="day empty" aria-hidden="true"></div>`;
+  for(let d=1; d<=nDias; d++){
+    const fecha = new Date(y,m,d), k = toKey(fecha);
+    const info = infoFecha(fecha);
+    const futuro = fecha > hoy;
+    let cls = "day";
+    if(periodosReales.has(k) && !futuro) cls += " period";
+    else if(info.fase==="menstrual" && futuro) cls += " predicted-period";
+    if(futuro) cls += " future";
+    if(+fecha===+hoy) cls += " today";
+    const tieneSint = !!state.sintomas[k];
+    const label = `${fmtCorto(fecha)}, ${FASES[info.fase].nombre.toLowerCase()}${tieneSint?", con síntomas anotados":""}`;
+    celdas += `<button class="${cls}" style="--c:var(${FASES[info.fase].color})" data-k="${k}" ${futuro?"disabled":""} aria-label="${esc(label)}">${d}${tieneSint?'<span class="dot"></span>':""}</button>`;
+  }
+  $("#v-cal").innerHTML = `
+    <div class="cal-head">
+      <button class="navbtn" id="calPrev" aria-label="Mes anterior">‹</button>
+      <h2>${esc(primero.toLocaleDateString("es-ES",{month:"long",year:"numeric"}))}</h2>
+      <button class="navbtn" id="calNext" aria-label="Mes siguiente">›</button>
+    </div>
+    <div class="cal-grid">${celdas}</div>
+    <div class="legend" style="margin-top:16px">${ORDEN.map(f=>`<span style="--c:var(${FASES[f].color})">${FASES[f].nombre.replace("Fase ","")}</span>`).join("")}</div>
+    <p class="cal-note">Los días en rojo intenso son reglas que has registrado. Los días futuros son una estimación. Toca un día pasado para ver o anotar tus síntomas.</p>`;
+  $("#calPrev").onclick = () => { mesCal = new Date(y,m-1,1); renderCal(); };
+  $("#calNext").onclick = () => { mesCal = new Date(y,m+1,1); renderCal(); };
+  document.querySelectorAll("#v-cal .day[data-k]").forEach(b => b.onclick = () => { fechaSint = fromKey(b.dataset.k); irA("sint"); });
+}
+
+/* ---------- Vista: Síntomas ---------- */
+let fechaSint = today();
+let borrador = null;
+function renderSint(){
+  const k = toKey(fechaSint), hoy = today();
+  const guardado = state.sintomas[k] || {lista:[], energia:0, nota:""};
+  if(!borrador || borrador.k!==k) borrador = {k, lista:[...guardado.lista], energia:guardado.energia||0, nota:guardado.nota||""};
+  const info = infoFecha(fechaSint);
+  const titulo = +fechaSint===+hoy ? "Hoy" : fmtLargo(fechaSint);
+  $("#v-sint").innerHTML = `
+    <div class="date-nav">
+      <button class="navbtn" id="sPrev" aria-label="Día anterior">‹</button>
+      <h2>${esc(titulo.charAt(0).toUpperCase()+titulo.slice(1))}</h2>
+      <button class="navbtn" id="sNext" aria-label="Día siguiente" ${+fechaSint>=+hoy?"disabled style='opacity:.3'":""}>›</button>
+    </div>
+    <p class="date-phase" style="color:var(${FASES[info.fase].color})">Día ${info.dia} · ${FASES[info.fase].nombre}</p>
+    <div class="panel">
+      <h3>¿Qué has notado?</h3>
+      <div class="chips">${SINTOMAS.map(s=>`<button class="chip" data-s="${esc(s)}" aria-pressed="${borrador.lista.includes(s)}">${esc(s)}</button>`).join("")}</div>
+    </div>
+    <div class="panel">
+      <h3>¿Cuánta energía tienes?</h3>
+      <div class="energy">${[1,2,3,4,5].map(n=>`<button data-e="${n}" aria-pressed="${borrador.energia===n}" aria-label="Energía ${n} de 5">${n}</button>`).join("")}</div>
+      <div class="scale-labels"><span>Agotada</span><span>A tope</span></div>
+    </div>
+    <div class="panel">
+      <h3>Notas</h3>
+      <textarea id="nota" placeholder="Cualquier cosa que quieras recordar de este día">${esc(borrador.nota)}</textarea>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="btnGuardarSint">Guardar</button>
+    </div>
+    ${renderPatrones()}`;
+  $("#sPrev").onclick = () => { fechaSint = addDays(fechaSint,-1); renderSint(); };
+  $("#sNext").onclick = () => { if(fechaSint<hoy){ fechaSint = addDays(fechaSint,1); renderSint(); } };
+  document.querySelectorAll("#v-sint .chip").forEach(c => c.onclick = () => {
+    const s = c.dataset.s, i = borrador.lista.indexOf(s);
+    if(i>=0) borrador.lista.splice(i,1); else borrador.lista.push(s);
+    c.setAttribute("aria-pressed", i<0);
+  });
+  document.querySelectorAll("#v-sint .energy button").forEach(b => b.onclick = () => {
+    const n = +b.dataset.e; borrador.energia = borrador.energia===n ? 0 : n;
+    document.querySelectorAll("#v-sint .energy button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.e===borrador.energia));
+  });
+  $("#nota").oninput = e => { borrador.nota = e.target.value; };
+  const bg = $("#btnGuardarSint");
+  bg.onclick = () => ocupado(bg, async () => {
+    const vacioDia = !borrador.lista.length && !borrador.energia && !borrador.nota.trim();
+    const dia = vacioDia ? null : {lista:[...borrador.lista], energia:borrador.energia, nota:borrador.nota.trim()};
+    await guardarDia(k, dia);
+    if(dia) state.sintomas[k] = dia; else delete state.sintomas[k];
+    borrador = null; renderSint(); toast(vacioDia ? "Día sin anotaciones" : "Guardado");
+  });
+}
+function renderPatrones(){
+  const cuenta = {menstrual:{},folicular:{},ovulatoria:{},lutea:{}};
+  let total = 0;
+  for(const [k,v] of Object.entries(state.sintomas)){
+    const f = infoFecha(fromKey(k)).fase;
+    (v.lista||[]).forEach(s => { cuenta[f][s] = (cuenta[f][s]||0)+1; total++; });
+  }
+  if(total < 5) return `<div class="panel"><h3>Tus patrones</h3><p class="muted">Cuando lleves unos días anotando, aquí verás qué síntomas se repiten en cada fase.</p></div>`;
+  const filas = ORDEN.map(f => {
+    const top = Object.entries(cuenta[f]).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0].toLowerCase());
+    const txt = top.length ? top.join(", ") : "sin síntomas destacables";
+    return `<div class="pattern-row"><span class="sw" style="--c:var(${FASES[f].color})"></span><div><strong>${FASES[f].nombre}:</strong> ${esc(txt)}</div></div>`;
+  }).join("");
+  return `<div class="panel"><h3>Tus patrones</h3><p class="muted small">Lo que más se repite en cada fase según tus anotaciones.</p><div class="pattern">${filas}</div></div>`;
+}
+
+/* ---------- Ajustes ---------- */
+function renderAjustes(){
+  $("#cuentaEmail").textContent = usuaria ? "Has entrado como " + usuaria.email : "";
+  const form = $("#formAjustes");
+  form.innerHTML = htmlCampos(state.config);
+  form.onsubmit = e => {
+    e.preventDefault();
+    const {ultima, ciclo, regla} = leerForm(form);
+    ocupado(form.querySelector("button"), async () => {
+      await guardarCiclo(ultima, ciclo, regla);
+      toast("Cambios guardados"); irA("hoy");
+    });
+  };
+}
+
+/* ---------- Datos de ejemplo (inventados) ---------- */
+async function cargarDemo(){
+  const hoy = today(), C = 28, P = 5;
+  const ultima = addDays(hoy, -11);
+  const demo = vacio();
+  demo.config = {ultimaRegla: toKey(ultima), ciclo:C, regla:P};
+  demo.periodos = [toKey(addDays(ultima,-56)), toKey(addDays(ultima,-28)), toKey(ultima)];
+  const anterior = state; state = demo;   // para calcular fases con los datos de ejemplo
+  const porFase = {
+    menstrual:[["Dolor abdominal",.8],["Cansancio",.7],["Dolor lumbar",.5],["Dolor de cabeza",.25],["Flujo abundante",.4]],
+    folicular:[["Acné",.1]],
+    ovulatoria:[["Sensibilidad en el pecho",.4]],
+    lutea:[["Hinchazón",.55],["Antojos",.5],["Irritabilidad",.4],["Acné",.35],["Insomnio",.2],["Sensibilidad en el pecho",.3]]
+  };
+  const energia = {menstrual:2, folicular:4, ovulatoria:5, lutea:3};
+  let semilla = 7; const rnd = () => (semilla = (semilla*9301+49297)%233280)/233280;
+  for(let i=60;i>=1;i--){
+    const f = addDays(hoy,-i);
+    if(rnd() < .25) continue;
+    const info = infoFecha(f);
+    const lista = porFase[info.fase].filter(([,p]) => rnd() < p * (info.fase==="lutea" && info.dia < 22 ? .4 : 1)).map(([s])=>s);
+    const e = Math.max(1, Math.min(5, energia[info.fase] + (rnd()<.3?-1:0) + (rnd()<.2?1:0)));
+    demo.sintomas[toKey(f)] = {lista, energia:e, nota:""};
+  }
+  try{
+    // Se sustituyen los datos de la usuaria por los de ejemplo
+    comprobar(await sb.from("registros_diarios").delete().eq("usuaria_id", usuaria.id));
+    comprobar(await sb.from("periodos").delete().eq("usuaria_id", usuaria.id));
+    await guardarPerfil(demo.config);
+    comprobar(await sb.from("periodos").insert(demo.periodos.map(f => ({usuaria_id: usuaria.id, fecha_inicio: f}))));
+    comprobar(await sb.from("registros_diarios").insert(Object.entries(demo.sintomas).map(([fecha, d]) => ({
+      usuaria_id: usuaria.id, fecha, sintomas: d.lista, energia: d.energia || null, nota: null
+    }))));
+  }catch(e){ state = anterior; return; }
+  toast("Datos de ejemplo cargados"); irA("hoy");
+}
+
+/* ---------- Render general ---------- */
+function render(){
+  document.querySelectorAll("[data-nombre]").forEach(el => el.textContent = APP_NOMBRE);
+  document.querySelectorAll("[data-subtitulo]").forEach(el => el.textContent = APP_SUBTITULO);
+  const dentro = !!usuaria;
+  const listo = dentro && !!state.config;
+  $("#topbar").hidden = !listo;
+  $("#tabs").hidden = !listo;
+  if(!dentro){ mostrar("auth"); return; }
+  if(!listo){
+    mostrar("onboard");
+    const form = $("#formOnboard");
+    if(!form.innerHTML){
+      form.innerHTML = htmlCampos(null);
+      form.onsubmit = e => {
+        e.preventDefault();
+        const {ultima, ciclo, regla} = leerForm(form);
+        ocupado(form.querySelector("button"), async () => { await guardarCiclo(ultima, ciclo, regla); irA("hoy"); });
+      };
+    }
+    return;
+  }
+  mostrar(vistaActual);
+  if(vistaActual==="hoy") renderHoy();
+  if(vistaActual==="cal") renderCal();
+  if(vistaActual==="sint") renderSint();
+  if(vistaActual==="ajustes") renderAjustes();
+}
+
+/* ---------- Acceso: entrar, crear cuenta, salir ---------- */
+let accionAuth = "entrar";
+document.querySelectorAll("#formAuth button[type=submit]").forEach(b => b.onclick = () => { accionAuth = b.dataset.accion; });
+$("#formAuth").onsubmit = async e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const email = f.get("email").trim(), password = f.get("password");
+  const errorEl = $("#authError"); errorEl.textContent = "";
+  const boton = e.submitter || e.target.querySelector("button");
+  await ocupado(boton, async () => {
+    const res = accionAuth === "crear"
+      ? await sb.auth.signUp({email, password})
+      : await sb.auth.signInWithPassword({email, password});
+    if(res.error){
+      const m = res.error.message || "";
+      errorEl.textContent = /invalid login/i.test(m) ? "El correo o la contraseña no son correctos."
+        : /already registered/i.test(m) ? "Ya existe una cuenta con ese correo. Pulsa Entrar."
+        : /password/i.test(m) ? "La contraseña debe tener al menos 6 caracteres."
+        : "No se pudo entrar: " + m;
+      return;
+    }
+    if(!res.data.session){ errorEl.textContent = "Revisa tu correo para confirmar la cuenta y después pulsa Entrar."; return; }
+    await iniciarSesion(res.data.session.user);
+  });
+};
+async function iniciarSesion(user){
+  usuaria = user;
+  mostrar("cargando");
+  try{ await cargarDatos(); }catch(e){}
+  vistaActual = "hoy";
+  render();
+}
+$("#btnSalir").onclick = async () => {
+  await sb.auth.signOut();
+  usuaria = null; state = vacio(); $("#formOnboard").innerHTML = ""; render();
+};
+
+/* ---------- Botones generales ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b => b.onclick = () => { if(b.dataset.view==="sint") fechaSint = today(); irA(b.dataset.view); });
+$("#btnAjustes").onclick = () => irA(vistaActual==="ajustes" ? "hoy" : "ajustes");
+$("#btnDemo").onclick = e => ocupado(e.currentTarget, cargarDemo);
+$("#btnDemo2").onclick = e => { if(confirm("Esto sustituirá tus datos actuales por datos inventados. ¿Continuar?")) ocupado(e.currentTarget, cargarDemo); };
+$("#btnBorrar").onclick = e => {
+  if(!confirm("Se borrarán tu ciclo y todos tus síntomas anotados. ¿Seguro?")) return;
+  ocupado(e.currentTarget, async () => {
+    await borrarTodo();
+    state = vacio(); $("#formOnboard").innerHTML = ""; vistaActual = "hoy"; render(); toast("Datos borrados");
+  });
+};
+
+/* ---------- Arranque: ¿hay una sesión abierta? ---------- */
+(async () => {
+  const {data} = await sb.auth.getSession();
+  if(data.session) await iniciarSesion(data.session.user);
+  else render();
+})();
+</script>
+</body>
+</html>
