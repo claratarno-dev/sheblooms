@@ -198,7 +198,7 @@ textarea{min-height:84px;resize:vertical}
 .msg.yo{align-self:flex-end;background:var(--ink);color:var(--surface);border-radius:22px 22px 6px 22px}
 .msg.ia{align-self:flex-start;background:var(--surface);border-radius:22px 22px 22px 6px;box-shadow:var(--shadow)}
 .msg.aviso{align-self:stretch;max-width:none;background:var(--sand);color:var(--brown);border-radius:16px;font-weight:600;font-size:14px}
-.composer{position:fixed;left:0;right:0;bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 20px;z-index:9}
+.composer{position:fixed;left:0;right:0;bottom:0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));background:var(--bg);padding:10px 20px;z-index:9}
 .composer .inner{max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
 .composer form{display:flex;gap:8px}
 .composer input{border-radius:999px}
@@ -236,6 +236,32 @@ nav.tabs .plus{width:56px;height:56px;border-radius:50%;background:var(--pink);c
 @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}100%{transform:scale(1)}}
 @keyframes vuela{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y)))}}
 
+
+/* v4: cabecera, burbuja, sueño, calendario con detalle, etiquetas */
+.cab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.cab h1{flex:1}
+.cab .acciones{display:flex;gap:8px}
+.sub{color:var(--muted);font-size:14px;margin-top:-6px}
+.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:calc(100px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:none;background:var(--ink);color:var(--surface);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(47,41,37,.28);z-index:11}
+.fab[hidden]{display:none}
+.sueno{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.sueno button{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;min-height:46px;font-weight:700;font-size:13px;padding:0 2px}
+.sueno button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.tag{display:inline-block;background:var(--melocoton);color:#8A5A1E;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;margin-left:6px;vertical-align:1px}
+.day.sel{background:var(--ink);color:var(--surface)}
+.detalle .linea{display:flex;gap:10px;align-items:flex-start}
+.detalle .linea .dot{margin-top:7px}
+.fasebar{position:relative;display:flex;gap:4px}
+.fasebar span{height:10px;border-radius:5px;background:var(--ring-off)}
+.fasebar span.on{background:var(--pink)}
+.fasebar i{position:absolute;top:-4px;width:18px;height:18px;border-radius:50%;background:var(--surface);border:4px solid var(--pink);transform:translateX(-50%)}
+.fasenames{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.barras{display:grid;grid-template-columns:repeat(7,1fr);align-items:end;height:100px}
+.barras div{display:flex;flex-direction:column;align-items:center;gap:6px}
+.barras span{width:22px;border-radius:6px;background:var(--menta-ink)}
+.barras span.cero{background:rgba(46,107,82,.15)}
+.barras small{font-size:11px;font-weight:700;color:var(--muted)}
+.lead-login{color:var(--muted);text-align:center;max-width:34ch;margin:-12px auto 26px}
 .toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){
@@ -252,6 +278,7 @@ nav.tabs .plus{width:56px;height:56px;border-radius:50%;background:var(--pink);c
 
   <section class="view" id="v-auth">
     <div class="logo-grande" data-logo-grande></div>
+    <p class="lead-login">Tu cuerpo no es igual todos los días. Te acompañamos en cada fase para que saques tu mejor versión.</p>
     <form id="formLogin" novalidate>
       <label class="field"><span>Correo electrónico</span><input type="email" name="email" required autocomplete="email"></label>
       <label class="field"><span>Contraseña</span><span class="pass"><input type="password" name="password" required autocomplete="current-password"><button type="button" data-ojo aria-label="Mostrar contraseña"></button></span></label>
@@ -295,14 +322,16 @@ nav.tabs .plus{width:56px;height:56px;border-radius:50%;background:var(--pink);c
   <section class="view" id="v-hoy"></section>
   <section class="view" id="v-cal"></section>
   <section class="view" id="v-sint"></section>
-  <section class="view" id="v-bien"></section>
+  <section class="view" id="v-ciclo"></section>
+  <section class="view" id="v-act"></section>
+  <section class="view" id="v-ali"></section>
   <section class="view" id="v-med"></section>
   <section class="view" id="v-asis"></section>
   <section class="view" id="v-entreno"></section>
 
   <section class="view" id="v-ajustes">
     <div class="stack">
-      <div class="row"><h1>Ajustes</h1><button class="btn link" data-ir="hoy">Volver</button></div>
+      <div class="row"><h1>Mi perfil</h1><button class="btn link" data-ir="hoy">Volver</button></div>
       <div class="card"><h2>Tu ciclo</h2><form id="formAjustes"></form></div>
       <div class="card">
         <h2>Tu cuenta</h2>
@@ -318,16 +347,17 @@ nav.tabs .plus{width:56px;height:56px;border-radius:50%;background:var(--pink);c
 <nav class="tabs" id="tabs" hidden aria-label="Secciones">
   <div class="inner">
     <button data-tab="hoy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="4" r="2" fill="currentColor"/></svg>Hoy</button>
-    <button data-tab="cal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendario</button>
+    <button data-tab="ciclo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3c3.5 4.5 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.5-6.5 6-11z"/></svg>Ciclo</button>
     <button id="btnPlus" aria-haspopup="dialog"><span class="plus" aria-hidden="true">+</span>Registrar</button>
-    <button data-tab="bien"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21c-4-3-7-6.5-7-10.5C5 7 7.5 4 12 3c4.5 1 7 4 7 7.5 0 4-3 7.5-7 10.5z"/><path d="M12 21V9"/></svg>Bienestar</button>
-    <button data-tab="asis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/></svg>Asistente</button>
+    <button data-tab="act"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="14" cy="4" r="2"/><path d="M10 21l2-6 3 2v4M7 12l3-4 4 1 3 3M12 15l-2-4"/></svg>Actividad</button>
+    <button data-tab="ali"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M9 7c0-2 1-3 3-3M14 7c0-1.5.5-2.5 2-3"/></svg>Alimentación</button>
   </div>
 </nav>
+<button class="fab" id="fab" hidden aria-label="Abrir asistente"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8"/></svg></button>
 
 <div class="velo" id="velo" hidden>
   <div class="hoja" role="dialog" aria-modal="true" aria-labelledby="hojaTit">
-    <div class="row"><h2 id="hojaTit">¿Qué quieres registrar?</h2><button class="iconbtn" id="cerrarHoja" aria-label="Cerrar">✕</button></div>
+    <div class="row"><h2 id="hojaTit"></h2><button class="iconbtn" id="cerrarHoja" aria-label="Cerrar">✕</button></div>
     <div id="hojaOps" class="stack" style="gap:10px"></div>
   </div>
 </div>
@@ -480,7 +510,31 @@ const FASES = {
 };
 const ORDEN = ["menstrual", "folicular", "ovulatoria", "lutea"];
 const SINTOMAS = ["Dolor abdominal", "Dolor lumbar", "Dolor de cabeza", "Hinchazón", "Cansancio", "Sensibilidad en el pecho", "Acné", "Antojos", "Insomnio", "Irritabilidad", "Ansiedad", "Tristeza", "Náuseas", "Flujo abundante"];
-const SUGERENCIAS_ASISTENTE = ["¿Qué ceno hoy con lo que tengo en la nevera?", "¿Qué como antes de entrenar?", "Hazme una lista de la compra para esta semana", "¿Es normal lo que estoy notando estos días?", "¿Cómo ajusto mi entreno a esta fase?"];
+const SUGERENCIAS = {
+  hoy: ["¿Qué me recomiendas hoy?", "He dormido mal, ¿qué hago hoy?", "¿Qué me espera esta semana?"],
+  ciclo: ["¿Es normal lo que estoy notando?", "¿Cómo alivio la hinchazón?", "¿Qué me espera en los próximos días?"],
+  act: ["¿Qué actividad me conviene hoy?", "¿Qué como antes de entrenar?", "¿Cómo ajusto mi entreno a esta fase?"],
+  ali: ["¿Qué ceno hoy con lo que tengo en la nevera?", "Hazme una lista de la compra para esta semana", "Un snack para los antojos"]
+};
+const NOMBRE_SECCION = { hoy: "Hoy", ciclo: "Ciclo", act: "Actividad", ali: "Alimentación", cal: "Calendario", med: "Meditar" };
+const SUENO = ["", "Fatal", "Mal", "Regular", "Bien", "Genial"];
+
+/* ---------- Textos de celebración ---------- */
+const CELEBRA_ACTIVIDAD = ["¡Bien hecho!", "¡Actividad guardada!", "¡Así se hace!", "¡Qué energía!"];
+const CELEBRA_MEDITACION = ["Un momento para ti", "¡Meditación completada!", "Respira, lo has hecho genial"];
+const FRASE_FASE = {
+  menstrual: "Moverte estos días tiene mucho mérito.",
+  folicular: "Tu energía está subiendo, ¡y se nota!",
+  ovulatoria: "Estás en tu pico de energía, ¡aprovéchalo!",
+  lutea: "Escuchar a tu cuerpo también es entrenar bien."
+};
+function fraseRacha(r) {
+  if (r <= 1) return "Acabas de empezar una racha. ¿Repetimos mañana?";
+  if (r === 7) return "¡Una semana entera meditando! Tu mente te lo agradece.";
+  if (r === 14) return "Dos semanas seguidas: esto ya es un hábito.";
+  if (r === 30) return "¡Un mes entero! Eres constancia pura.";
+  return `Llevas ${r} días seguidos cuidándote.`;
+}
 const TIPOS = {
   correr:   { n: "Correr",   dist: true, ritmo: "min/km", fc: true },
   caminar:  { n: "Caminar",  dist: true, ritmo: "min/km", fc: true, pasos: true },
@@ -493,6 +547,7 @@ const TIPOS = {
 };
 const ZONAS = ["Pierna", "Glúteo", "Espalda", "Pecho", "Hombros", "Brazos", "Core", "Cuerpo completo"];
 const ESFUERZO = ["", "Muy fácil", "Cómoda", "Exigente", "Muy exigente", "Al límite"];
+
 
 /* =========================================================
    CONEXIÓN CON SUPABASE (clave pública: es seguro que esté aquí)
@@ -539,7 +594,7 @@ async function cargarDatos() {
   const [perfil, periodos, registros, entrenos, meds] = await Promise.all([
     sb.from("perfiles").select("*").maybeSingle(),
     sb.from("periodos").select("fecha_inicio, duracion"),
-    sb.from("registros_diarios").select("fecha, sintomas, energia, nota"),
+    sb.from("registros_diarios").select("fecha, sintomas, energia, nota, sueno"),
     sb.from("entrenos").select("*").order("fecha", { ascending: false }),
     sb.from("meditaciones").select("fecha, minutos")
   ]);
@@ -550,7 +605,7 @@ async function cargarDatos() {
     state.config = { ultimaRegla: p.ultima_regla, ciclo: p.duracion_ciclo, regla: p.duracion_regla, recordatorio: p.recordatorio_meditacion || "auto", fasesMed: p.fases_meditacion || [] };
   }
   state.periodos = periodos.data.map(p => ({ fecha: p.fecha_inicio, duracion: p.duracion }));
-  registros.data.forEach(r => { state.sintomas[r.fecha] = { lista: r.sintomas || [], energia: r.energia || 0, nota: r.nota || "" }; });
+  registros.data.forEach(r => { state.sintomas[r.fecha] = { lista: r.sintomas || [], energia: r.energia || 0, nota: r.nota || "", sueno: r.sueno || 0 }; });
   state.entrenos = entrenos.data;
   state.meditaciones = meds.data;
 }
@@ -565,10 +620,14 @@ async function guardarPeriodo(fecha, duracion) {
   const p = state.periodos.find(x => x.fecha === fecha);
   if (p) p.duracion = duracion || null; else state.periodos.push({ fecha, duracion: duracion || null });
 }
+// Guarda lo anotado en un día (síntomas, energía, nota y sueño). Si no queda nada, borra el día.
 async function guardarDia(fecha, dia) {
-  if (!dia) comprobar(await sb.from("registros_diarios").delete().eq("usuaria_id", usuaria.id).eq("fecha", fecha));
-  else comprobar(await sb.from("registros_diarios").upsert({ usuaria_id: usuaria.id, fecha, sintomas: dia.lista, energia: dia.energia || null, nota: dia.nota || null }, { onConflict: "usuaria_id,fecha" }));
+  const vacioDia = !dia || (!dia.lista.length && !dia.energia && !(dia.nota || "").trim() && !dia.sueno);
+  if (vacioDia) { comprobar(await sb.from("registros_diarios").delete().eq("usuaria_id", usuaria.id).eq("fecha", fecha)); delete state.sintomas[fecha]; return; }
+  comprobar(await sb.from("registros_diarios").upsert({ usuaria_id: usuaria.id, fecha, sintomas: dia.lista, energia: dia.energia || null, nota: (dia.nota || "").trim() || null, sueno: dia.sueno || null }, { onConflict: "usuaria_id,fecha" }));
+  state.sintomas[fecha] = { lista: [...dia.lista], energia: dia.energia || 0, nota: (dia.nota || "").trim(), sueno: dia.sueno || 0 };
 }
+const diaDe = k => state.sintomas[k] || { lista: [], energia: 0, nota: "", sueno: 0 };
 async function guardarEntreno(e) {
   const res = comprobar(await sb.from("entrenos").insert({ ...e, usuaria_id: usuaria.id }).select().single());
   state.entrenos.unshift(res.data);
@@ -684,14 +743,17 @@ function ajustesDe(fecha) {
   const entrenoHoy = entrenosDe(hoyK);
   const intensos = state.entrenos.filter(e => (e.esfuerzo || 0) >= 4 && diffDays(fromKey(e.fecha), fecha) >= 0 && diffDays(fromKey(e.fecha), fecha) <= 2).length;
   const a = { comida: [], ejercicio: [], general: [], suave: false };
-  if (entrenoHoy.length) a.comida.push(`Has entrenado hoy. Para recuperar: ${F.ejercicio.despues.charAt(0).toLowerCase() + F.ejercicio.despues.slice(1)}`);
+  
   if (sint.has("Hinchazón")) a.comida.push("Has notado hinchazón: hoy mejor poca sal y bebe más agua.");
   if (sint.has("Antojos")) a.comida.push("Para los antojos, ten a mano frutos secos, fruta o un poco de chocolate negro.");
   if (sint.has("Cansancio")) { a.ejercicio.push("Has anotado cansancio: hoy prioriza algo suave o descansa."); a.suave = true; }
-  if (intensos >= 2 && (fase === "lutea" || fase === "menstrual")) { a.ejercicio.push(`Llevas ${intensos} entrenos exigentes en pocos días y estás en ${F.nombre.toLowerCase()}: hoy tu cuerpo agradecerá algo más suave.`); a.suave = true; }
-  else if (intensos >= 2) a.ejercicio.push(`Buen ritmo: ${intensos} entrenos exigentes estos días. Recuerda reservar un día de descanso.`);
+  if (intensos >= 2 && (fase === "lutea" || fase === "menstrual")) { a.ejercicio.push(`Llevas ${intensos} actividades exigentes en pocos días y estás en ${F.nombre.toLowerCase()}: hoy tu cuerpo agradecerá algo más suave.`); a.suave = true; }
+  else if (intensos >= 2) a.ejercicio.push(`Buen ritmo: ${intensos} actividades exigentes estos días. Recuerda reservar un día de descanso.`);
   if (sint.has("Dolor abdominal")) a.general.push("Para el dolor abdominal, el calor local y algo templado suelen ayudar.");
-  if (sint.has("Insomnio")) a.general.push("Si duermes mal, una meditación antes de dormir y una cena ligera pueden ayudar.");
+  const sueno = state.sintomas[hoyK]?.sueno || 0;
+  if (sueno && sueno <= 2) { a.general.push("Has dormido mal: hoy tómatelo con calma y regálate una pausa."); a.suave = true; }
+  else if (sint.has("Insomnio")) a.general.push("Si duermes mal, una meditación antes de dormir y una cena ligera pueden ayudar.");
+  a.entrenoHoy = entrenoHoy.length > 0; a.antojos = sint.has("Antojos"); a.hinchazon = sint.has("Hinchazón");
   return a;
 }
 
@@ -721,7 +783,13 @@ async function ocupado(boton, tarea) {
   try { await tarea(); } catch (e) { console.error(e); }
   if (boton && document.body.contains(boton)) boton.disabled = false;
 }
-const ICONO_AJUSTES = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>';
+const ICONO_PERFIL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></svg>';
+const ICONO_CAL = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>';
+// Cabecera común: título (o logo) + calendario + perfil
+function cabecera(titulo) {
+  const izq = titulo ? `<h1>${titulo}</h1>` : `<div class="logo" style="flex:1">${logoIcono(26)}<span><b>SHE</b>blooms</span></div>`;
+  return `<div class="cab">${izq}<div class="acciones"><button class="iconbtn" data-ir="cal" aria-label="Calendario">${ICONO_CAL}</button><button class="iconbtn" data-ir="ajustes" aria-label="Mi perfil">${ICONO_PERFIL}</button></div></div>`;
+}
 const OJO = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const OJO_NO = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17.6 17.6 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
 document.querySelectorAll("[data-ojo]").forEach(b => {
@@ -756,40 +824,6 @@ function celebrar(titulo, texto) {
 }
 $("#celOk").onclick = () => { $("#celebra").hidden = true; render(); };
 
-/* ---------- Hoja de registro (botón +) ---------- */
-function abrirHoja() {
-  const { abierto, dia } = periodoActual();
-  const op = (id, color, ico, tit, sub) => `<button class="hoja-op" data-hoja="${id}"><span class="ic" style="background:${color}">${ico}</span><span><b>${tit}</b><small>${sub}</small></span></button>`;
-  $("#hojaOps").innerHTML =
-    op("periodo", "#FCE6EC", '<span class="dot" style="background:var(--pink);width:14px;height:14px"></span>', abierto ? "Hoy termina mi periodo" : "Me ha venido el periodo", abierto ? `Llevas ${plural(dia, "día", "días")} de periodo` : "Empieza a contar un nuevo ciclo") +
-    op("sint", "var(--sand)", "✎", "Síntomas y ánimo", "Cómo te sientes hoy") +
-    op("entreno", "var(--menta)", '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E6B52" stroke-width="2" aria-hidden="true"><circle cx="14" cy="4" r="2"/><path d="M10 21l2-6 3 2v4M7 12l3-4 4 1 3 3M12 15l-2-4"/></svg>', "Entreno", "Correr, fuerza, caminar…") +
-    op("med", "var(--lavanda)", '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E3F8F" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 8v5M7 21c0-3 2-5 5-5s5 2 5 5M5 13h14"/></svg>', "Meditar", racha() ? `Llevas ${plural(racha(), "día seguido", "días seguidos")}` : "Un momento para ti");
-  $("#velo").hidden = false;
-  $("#cerrarHoja").focus();
-}
-const cerrarHoja = () => { $("#velo").hidden = true; };
-$("#btnPlus").onclick = abrirHoja;
-$("#cerrarHoja").onclick = cerrarHoja;
-$("#velo").onclick = e => { if (e.target.id === "velo") cerrarHoja(); };
-document.addEventListener("keydown", e => { if (e.key === "Escape") { cerrarHoja(); if (!$("#celebra").hidden) $("#celOk").click(); } });
-$("#hojaOps").onclick = e => {
-  const b = e.target.closest("[data-hoja]"); if (!b) return;
-  const accion = b.dataset.hoja; cerrarHoja();
-  if (accion === "periodo") return accionPeriodo();
-  if (accion === "sint") { fechaSint = today(); borrador = null; return irA("sint"); }
-  if (accion === "entreno") { abrirEntreno(today()); return; }
-  if (accion === "med") return irA("med");
-};
-async function accionPeriodo() {
-  const { abierto, p, dia } = periodoActual();
-  try {
-    if (abierto) { await guardarPeriodo(p.fecha, dia); toast(`Anotado: tu periodo ha durado ${plural(dia, "día", "días")}`); }
-    else { await guardarPeriodo(toKey(today()), null); toast("Anotado: hoy empieza tu periodo"); }
-  } catch (e) { return; }
-  irA("hoy");
-}
-
 /* ---------- Formulario del ciclo ---------- */
 function htmlCampos(cfg) {
   const ur = cfg ? toKey(ultimaRegla()) : "";
@@ -813,6 +847,53 @@ async function guardarCiclo({ ultima, ciclo, regla }) {
   if (!state.periodos.some(p => p.fecha === ultima)) await guardarPeriodo(ultima, null);
 }
 
+
+/* =========================================================
+   HOJA INFERIOR (botón + y ajustes de meditación)
+   ========================================================= */
+let alCerrarHoja = null;
+function abrirHoja(titulo, html, enlazar) {
+  $("#hojaTit").textContent = titulo;
+  $("#hojaOps").innerHTML = html;
+  $("#velo").hidden = false;
+  if (enlazar) enlazar();
+  $("#cerrarHoja").focus();
+}
+function cerrarHoja() { $("#velo").hidden = true; if (alCerrarHoja) { const f = alCerrarHoja; alCerrarHoja = null; f(); } }
+$("#cerrarHoja").onclick = cerrarHoja;
+$("#velo").onclick = e => { if (e.target.id === "velo") cerrarHoja(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") { if (!$("#velo").hidden) cerrarHoja(); if (!$("#celebra").hidden) $("#celOk").click(); } });
+
+function abrirRegistro() {
+  const { abierto, dia } = periodoActual();
+  const op = (id, color, ico, tit, sub, destino) => `<button class="hoja-op" data-hoja="${id}"><span class="ic" style="background:${color}">${ico}</span><span style="flex:1"><b>${tit}</b><small>${sub}</small></span><small style="color:var(--brown);font-weight:700;white-space:nowrap">→ ${destino}</small></button>`;
+  const html =
+    op("periodo", "#FCE6EC", '<span class="dot" style="background:var(--pink);width:14px;height:14px"></span>', abierto ? "Fin del periodo" : "Inicio del periodo", abierto ? `Llevas ${plural(dia, "día", "días")} de periodo` : "Empieza un nuevo ciclo", "Ciclo") +
+    op("sint", "var(--sand)", '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7A5C48" stroke-width="2" aria-hidden="true"><path d="M12 3c3.5 4.5 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.5-6.5 6-11z"/></svg>', "Síntomas y ánimo", "Cómo te sientes hoy", "Ciclo") +
+    op("act", "var(--menta)", '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2E6B52" stroke-width="2" aria-hidden="true"><circle cx="14" cy="4" r="2"/><path d="M10 21l2-6 3 2v4M7 12l3-4 4 1 3 3M12 15l-2-4"/></svg>', "Actividad", "Correr, fuerza, caminar…", "Actividad") +
+    op("med", "var(--lavanda)", '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4E3F8F" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2"/><path d="M12 8v5M7 21c0-3 2-5 5-5s5 2 5 5M5 13h14"/></svg>', "Meditar", racha() ? `Llevas ${plural(racha(), "día seguido", "días seguidos")}` : "Un momento para ti", "Meditar") +
+    `<p class="muted small" style="text-align:center">Después de guardar, te llevamos a la sección donde lo verás.</p>`;
+  abrirHoja("¿Qué quieres registrar?", html, () => {
+    $("#hojaOps").onclick = e => {
+      const b = e.target.closest("[data-hoja]"); if (!b) return;
+      const accion = b.dataset.hoja; $("#hojaOps").onclick = null; cerrarHoja();
+      if (accion === "periodo") return accionPeriodo();
+      if (accion === "sint") return abrirSintomas(today(), "ciclo");
+      if (accion === "act") return abrirEntreno(today());
+      if (accion === "med") return irA("med");
+    };
+  });
+}
+$("#btnPlus").onclick = abrirRegistro;
+async function accionPeriodo() {
+  const { abierto, p, dia } = periodoActual();
+  try {
+    if (abierto) { await guardarPeriodo(p.fecha, dia); toast(`Anotado: tu periodo ha durado ${plural(dia, "día", "días")}`); }
+    else { await guardarPeriodo(toKey(today()), null); toast("Anotado: hoy empieza tu periodo"); }
+  } catch (e) { return; }
+  irA("ciclo");
+}
+
 /* =========================================================
    PANTALLA: HOY
    ========================================================= */
@@ -827,7 +908,13 @@ function anillo(dia, retraso) {
   const pos = retraso ? C : dia, ang = ((pos - 0.5) / C) * 2 * Math.PI - Math.PI / 2;
   return `<svg viewBox="0 0 240 240" aria-hidden="true"><circle cx="120" cy="120" r="${R}" fill="var(--surface)"/>${arcos}<circle cx="${(120 + R * Math.cos(ang)).toFixed(1)}" cy="${(120 + R * Math.sin(ang)).toFixed(1)}" r="12" fill="var(--surface)" stroke="var(--pink)" stroke-width="5"/></svg>`;
 }
-let preguntaOcultaHoy = null;
+const lunesDe = d => addDays(d, -((d.getDay() + 6) % 7));
+let preguntaOcultaHoy = null, cambiarSueno = false;
+function htmlSueno() {
+  const k = toKey(today()), s = diaDe(k).sueno;
+  if (s && !cambiarSueno) return `<div class="card" style="margin-top:16px;flex-direction:row;align-items:center;justify-content:space-between;padding:14px 18px"><span>Has dormido <b>${SUENO[s].toLowerCase()}</b></span><button class="btn link" id="cambiarSueno">Cambiar</button></div>`;
+  return `<div class="card" style="margin-top:16px"><h3>¿Qué tal has dormido?</h3><div class="sueno">${[1, 2, 3, 4, 5].map(n => `<button data-sueno="${n}" aria-pressed="${s === n}">${SUENO[n]}</button>`).join("")}</div></div>`;
+}
 function renderHoy() {
   const hoy = today(), { dia, fase, retraso } = infoFecha(hoy), F = FASES[fase];
   const faltan = diffDays(hoy, proximaRegla());
@@ -837,45 +924,45 @@ function renderHoy() {
   else if (faltan <= 0) { top = "Tu periodo"; big = "Hoy"; }
   else big = plural(faltan, "día", "días");
 
-  const lunes = addDays(hoy, -((hoy.getDay() + 6) % 7));
+  const lunes = lunesDe(hoy), medDias = new Set(state.meditaciones.map(m => m.fecha));
   let semana = "";
   ["L", "M", "X", "J", "V", "S", "D"].forEach((l, i) => {
-    const d = addDays(lunes, i), esHoy = +d === +hoy;
-    const marca = d <= hoy && esDiaDeRegla(d) ? "regla" : esReglaPrevista(d) ? "prevista" : "";
-    semana += `<div><small>${esHoy ? "HOY" : l}</small><b class="${esHoy ? "hoy" : ""}">${d.getDate()}</b><i class="${marca}"></i></div>`;
+    const d = addDays(lunes, i), k = toKey(d), esHoy = +d === +hoy;
+    const marcas = (d <= hoy && esDiaDeRegla(d) ? '<i class="regla"></i>' : esReglaPrevista(d) ? '<i class="prevista"></i>' : "") +
+      (entrenosDe(k).length ? '<i style="background:var(--menta-dot)"></i>' : "") + (medDias.has(k) ? '<i style="background:var(--lavanda-dot)"></i>' : "");
+    semana += `<div><small>${esHoy ? "HOY" : l}</small><b class="${esHoy ? "hoy" : ""}">${d.getDate()}</b><span style="display:flex;gap:2px;height:6px">${marcas}</span></div>`;
   });
 
-  // Acción de periodo según el momento
   const { abierto, p } = periodoActual();
   let accion = "";
   if (abierto && dia > state.config.regla && preguntaOcultaHoy !== toKey(hoy)) {
     accion = `<div class="card" style="margin-top:14px"><h3>¿Sigues con el periodo?</h3><p class="muted small">Normalmente te dura ${plural(state.config.regla, "día", "días")}. Cuéntanos para afinar tus predicciones.</p>
       <div class="chips"><button class="chip" data-fin="${dia - 1}">Terminó ayer</button><button class="chip" data-fin="${dia}">Termina hoy</button><button class="chip" data-fin="sigo">Sigo con él</button></div></div>`;
-  } else if (abierto) accion = `<div style="display:flex;justify-content:center;margin-top:12px"><button class="btn outline" data-fin="${dia}">Hoy es mi último día de periodo</button></div>`;
-  else if (fase !== "menstrual" || retraso) accion = `<div style="display:flex;justify-content:center;margin-top:12px"><button class="btn outline" id="btnRegla">Me ha venido el periodo</button></div>`;
+  } else if (abierto) accion = `<div style="display:flex;justify-content:center;margin-top:12px"><button class="btn outline" data-fin="${dia}">Fin del periodo</button></div>`;
+  else if (fase !== "menstrual" || retraso) accion = `<div style="display:flex;justify-content:center;margin-top:12px"><button class="btn outline" id="btnRegla">Inicio del periodo</button></div>`;
 
-  const aj = ajustesDe(hoy), notas = [...aj.general, ...aj.comida, ...aj.ejercicio].slice(0, 3);
-  const menu = menuDe(hoy, fase), recomendada = meditacionRecomendada(hoy);
-  const anotado = state.sintomas[toKey(hoy)], entrenoHoy = entrenosDe(toKey(hoy)).length > 0;
-  const comidaTip = entrenoHoy ? ["Para recuperar", F.ejercicio.despues] : ["Para comer hoy", menu.comida[0]];
-  const moverTip = aj.suave ? "Descanso activo: paseo o estiramientos" : `${F.ejercicio.actividades[0]} o ${F.ejercicio.actividades[1].toLowerCase()}`;
+  const aj = ajustesDe(hoy), menu = menuDe(hoy, fase), recomendada = meditacionRecomendada(hoy);
+  const anotado = state.sintomas[toKey(hoy)]?.lista?.length || state.sintomas[toKey(hoy)]?.energia;
+  const comidaTip = aj.entrenoHoy ? ["Para recuperar", F.ejercicio.despues] : ["Para comer hoy", menu.comida[0]];
+  const moverTip = aj.suave ? "Paseo o estiramientos" : `${F.ejercicio.actividades[0]} o ${F.ejercicio.actividades[1].toLowerCase()}`;
   const medTip = meditadoHoy() ? ["¡Ya has meditado hoy!", racha() > 1 ? `${racha()} días seguidos` : "Repite cuando quieras"] : [recomendada ? "Hoy te vendría bien" : "Un momento para ti", "Medita 10 minutos"];
 
   $("#v-hoy").innerHTML = `
-    <div class="row"><div class="logo">${logoIcono(26)}<span><b>SHE</b>blooms</span></div><button class="iconbtn" data-ir="ajustes" aria-label="Ajustes">${ICONO_AJUSTES}</button></div>
+    ${cabecera()}
     <div class="week">${semana}</div>
+    <div style="text-align:center;margin-top:6px"><button class="btn link" data-ir="cal" style="min-height:32px;font-size:13px">Ver calendario</button></div>
     <div class="ring">${anillo(dia, retraso)}<div class="ring-center"><span class="ring-top">${top}</span><span class="ring-big">${big}</span><span class="ring-sub">${sub}</span></div></div>
     ${accion}
-    ${notas.length ? `<div class="note" style="margin-top:16px">Según lo que has registrado:<ul>${notas.map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
+    ${htmlSueno()}
+    ${aj.general.length ? `<p class="note" style="margin-top:14px">${esc(aj.general[0])}</p>` : ""}
     <h2 style="margin:22px 0 10px">Tus consejos de hoy</h2>
     <div class="tips">
       <button class="tip" data-sint-hoy><span>${anotado ? "Revisa cómo te sientes" : "Registra cómo te sientes"}</span><b class="plus" aria-hidden="true">${anotado ? "✓" : "+"}</b></button>
       <button class="tip lavanda" data-ir="med"><span>${medTip[0]}</span><strong>${medTip[1]}</strong></button>
-      <button class="tip melocoton" data-ir="bien" data-bien="comida"><span>${comidaTip[0]}</span><strong>${esc(comidaTip[1])}</strong></button>
-      <button class="tip menta" data-ir="bien" data-bien="ejercicio"><span>Para moverte</span><strong>${esc(moverTip)}</strong></button>
+      <button class="tip melocoton" data-ir="ali"><span>${comidaTip[0]}</span><strong>${esc(comidaTip[1])}</strong></button>
+      <button class="tip menta" data-ir="act"><span>Para moverte</span><strong>${esc(moverTip)}</strong></button>
     </div>
     ${htmlSemana()}
-    <div class="card" style="margin-top:14px"><span class="label">${F.nombre}</span><h2>Qué está pasando en tu cuerpo</h2><p>${F.texto}</p></div>
     <p class="disclaimer">SHEblooms ofrece información general y estimaciones. No sustituye la consulta con un profesional sanitario.</p>`;
 
   const br = $("#btnRegla");
@@ -884,75 +971,46 @@ function renderHoy() {
     if (b.dataset.fin === "sigo") { preguntaOcultaHoy = toKey(hoy); return renderHoy(); }
     ocupado(b, async () => { const n = +b.dataset.fin; await guardarPeriodo(p.fecha, n); render(); toast(`Anotado: tu periodo ha durado ${plural(n, "día", "días")}`); });
   });
+  document.querySelectorAll("[data-sueno]").forEach(b => b.onclick = () => ocupado(b, async () => {
+    const k = toKey(hoy), d = diaDe(k);
+    await guardarDia(k, { ...d, lista: [...d.lista], sueno: +b.dataset.sueno });
+    cambiarSueno = false; renderHoy(); toast("Anotado, gracias");
+  }));
+  const cs = $("#cambiarSueno"); if (cs) cs.onclick = () => { cambiarSueno = true; renderHoy(); };
 }
 function htmlSemana() {
-  const hoy = today(), desde = addDays(hoy, -6);
-  const enSemana = k => { const d = fromKey(k); return d >= desde && d <= hoy; };
+  const hoy = today(), lunes = lunesDe(hoy), dom = addDays(lunes, 6);
+  const enSemana = k => { const d = fromKey(k); return d >= lunes && d <= hoy; };
   const ents = state.entrenos.filter(e => enSemana(e.fecha));
   const regs = Object.entries(state.sintomas).filter(([k]) => enSemana(k)).map(([, v]) => v);
   const energias = regs.filter(r => r.energia).map(r => r.energia);
-  const cuenta = {}; regs.forEach(r => r.lista.forEach(s => cuenta[s] = (cuenta[s] || 0) + 1));
-  const top = Object.entries(cuenta).sort((a, b) => b[1] - a[1]).slice(0, 2).map(x => x[0].toLowerCase());
-  if (!ents.length && !regs.length && !racha()) return "";
+  const r = racha();
   return `<div class="card" style="margin-top:14px">
-    <div class="row"><h3>Tu semana</h3><span class="muted small">${esc(fmtCorto(desde))} – ${esc(fmtCorto(hoy))}</span></div>
+    <div class="row"><h3>Tu semana</h3><span class="muted small">${esc(fmtCorto(lunes))} – ${esc(fmtCorto(dom))}</span></div>
     <div class="semana">
-      <div><b>${ents.length}</b><small>${ents.length === 1 ? "entreno" : "entrenos"}</small></div>
-      <div><b>${racha()}</b><small>${racha() === 1 ? "día meditando" : "días meditando seguidos"}</small></div>
+      <div><b>${ents.length}</b><small>${ents.length === 1 ? "actividad" : "actividades"}</small></div>
+      <div><b>${r}</b><small>${r === 1 ? "día meditando" : "días meditando seguidos"}</small></div>
       <div><b>${energias.length ? num(energias.reduce((a, b) => a + b, 0) / energias.length) : "–"}</b><small>energía media</small></div>
     </div>
-    ${top.length ? `<p class="muted small" style="border-top:1px solid var(--line);padding-top:10px">Lo que más has notado: ${esc(top.join(" y "))}.</p>` : ""}
   </div>`;
 }
 
 /* =========================================================
-   PANTALLA: CALENDARIO (mes e historial)
+   PANTALLA: CICLO
    ========================================================= */
-let pestanaCal = "mes", anadiendo = false;
-let mesCal = new Date(today().getFullYear(), today().getMonth(), 1);
-function renderCal() {
-  $("#v-cal").innerHTML = `<div class="stack"><h1>Calendario</h1>
-    <div class="segment" role="tablist"><button role="tab" data-cal="mes" aria-selected="${pestanaCal === "mes"}">Mes</button><button role="tab" data-cal="historial" aria-selected="${pestanaCal === "historial"}">Historial</button></div>
-    ${pestanaCal === "mes" ? htmlMes() : htmlHistorial()}</div>`;
-  document.querySelectorAll("[data-cal]").forEach(b => b.onclick = () => { pestanaCal = b.dataset.cal; renderCal(); });
-  if (pestanaCal === "mes") enlazarMes(); else enlazarHistorial();
-}
-function htmlMes() {
-  const hoy = today(), y = mesCal.getFullYear(), m = mesCal.getMonth();
-  const primero = new Date(y, m, 1), nDias = new Date(y, m + 1, 0).getDate(), offset = (primero.getDay() + 6) % 7;
-  const medDias = new Set(state.meditaciones.map(x => x.fecha));
-  let celdas = ["L", "M", "X", "J", "V", "S", "D"].map(d => `<div class="dow" aria-hidden="true">${d}</div>`).join("");
-  for (let i = 0; i < offset; i++) celdas += `<div class="day empty"></div>`;
-  for (let d = 1; d <= nDias; d++) {
-    const f = new Date(y, m, d), k = toKey(f), futuro = f > hoy;
-    let cls = "day";
-    if (!futuro && esDiaDeRegla(f)) cls += " regla"; else if (esReglaPrevista(f)) cls += " prevista";
-    if (+f === +hoy) cls += " hoy";
-    const s = !!state.sintomas[k], e = entrenosDe(k).length > 0, md = medDias.has(k);
-    const dots = (s ? '<i style="background:var(--brown)"></i>' : "") + (e ? '<i style="background:var(--menta-dot)"></i>' : "") + (md ? '<i style="background:var(--lavanda-dot)"></i>' : "");
-    const extra = [s && "síntomas", e && "entreno", md && "meditación"].filter(Boolean).join(", ");
-    celdas += `<button class="${cls}" data-k="${k}" ${futuro ? "disabled" : ""} aria-label="${esc(fmtCorto(f))}${extra ? ", con " + extra : ""}">${d}${dots ? `<span class="dots">${dots}</span>` : ""}</button>`;
-  }
-  return `<div class="card">
-      <div class="cal-head"><button class="iconbtn" id="calPrev" aria-label="Mes anterior">‹</button><h2>${esc(primero.toLocaleDateString("es-ES", { month: "long", year: "numeric" }))}</h2><button class="iconbtn" id="calNext" aria-label="Mes siguiente">›</button></div>
-      <div class="cal-grid">${celdas}</div>
-    </div>
-    <div class="legend"><span><i style="background:var(--pink)"></i>Periodo</span><span><i style="border:1.5px dashed var(--pink)"></i>Periodo previsto</span><span><i style="background:var(--brown)"></i>Síntomas</span><span><i style="background:var(--menta-dot)"></i>Entreno</span><span><i style="background:var(--lavanda-dot)"></i>Meditación</span></div>
-    <p class="muted small">Toca un día pasado para ver todo lo que registraste.</p>`;
-}
-function enlazarMes() {
-  $("#calPrev").onclick = () => { mesCal = new Date(mesCal.getFullYear(), mesCal.getMonth() - 1, 1); renderCal(); };
-  $("#calNext").onclick = () => { mesCal = new Date(mesCal.getFullYear(), mesCal.getMonth() + 1, 1); renderCal(); };
-  document.querySelectorAll("#v-cal .day[data-k]").forEach(b => b.onclick = () => { fechaSint = fromKey(b.dataset.k); borrador = null; irA("sint"); });
-}
-function htmlHistorial() {
+let anadiendo = false, verTodoHistorial = false;
+function renderCiclo() {
+  const hoy = today(), { dia, fase, retraso } = infoFecha(hoy), F = FASES[fase], cfg = state.config, r = rangos(cfg);
+  const faltan = diffDays(hoy, proximaRegla());
+  const barra = ORDEN.map(f => `<span class="${f === fase ? "on" : ""}" style="flex:${r[f][1] - r[f][0] + 1}"></span>`).join("") + `<i style="left:${Math.min(100, ((Math.min(dia, cfg.ciclo) - 0.5) / cfg.ciclo) * 100).toFixed(1)}%"></i>`;
+  const d = diaDe(toKey(hoy));
   const st = estadisticas(), prox = proximaRegla();
   const ps = [...state.periodos].sort((a, b) => b.fecha.localeCompare(a.fecha));
   let msg;
   if (st.variacion === null) msg = "Cuando registres más periodos, verás aquí lo regular que es tu ciclo.";
   else if (st.variacion <= 3) msg = `Tu ciclo es regular: en los últimos meses ha variado como mucho ${plural(st.variacion, "día", "días")}.`;
   else msg = `Tu ciclo varía hasta ${st.variacion} días entre meses. Algo de variación es normal; si te preocupa, coméntalo con tu médica.`;
-  const filas = ps.map((p, i) => {
+  const filas = (verTodoHistorial ? ps : ps.slice(0, 4)).map((p, i) => {
     const s = fromKey(p.fecha), dur = duracionDe(p), fin = addDays(s, dur - 1);
     const ciclo = i === 0 ? "Ciclo en curso" : `Ciclo de ${diffDays(s, fromKey(ps[i - 1].fecha))} días`;
     return `<div class="periodo"><div><b>${esc(fmtCorto(s))} – ${esc(fmtCorto(fin))}</b><div class="muted small">${ciclo}${p.duracion ? "" : " · duración estimada"}</div><div class="bars">${"<i></i>".repeat(dur)}</div></div>
@@ -960,83 +1018,52 @@ function htmlHistorial() {
   }).join("");
   const form = anadiendo ? `<form class="card" id="formPasada"><h2>Añadir un periodo pasado</h2>
       <label class="field"><span>¿Qué día empezó?</span><input type="date" name="fecha" required max="${toKey(today())}"></label>
-      <label class="field"><span>¿Cuántos días duró?</span><input type="number" name="dur" min="1" max="15" value="${state.config.regla}" required></label>
+      <label class="field"><span>¿Cuántos días duró?</span><input type="number" name="dur" min="1" max="15" value="${cfg.regla}" required></label>
       <div class="row"><button type="button" class="btn link" id="cancelPasada">Cancelar</button><button class="btn primary" type="submit">Guardar</button></div></form>`
     : `<button class="btn outline block" id="btnPasada">+ Añadir un periodo pasado</button>`;
-  return `<div class="stats">
-      <div class="stat"><small>Ciclo medio</small><b>${st.ciclo}</b><span>días</span></div>
-      <div class="stat"><small>Periodo medio</small><b>${st.regla}</b><span>días</span></div>
-      <div class="stat"><small>Próximo</small><b>${prox.getDate()}</b><span>de ${esc(prox.toLocaleDateString("es-ES", { month: "long" }))}</span></div>
+
+  $("#v-ciclo").innerHTML = `${cabecera("Ciclo")}<div class="stack">
+    <div class="card">
+      <div class="row"><span class="label">Hoy · día ${dia} de ${cfg.ciclo}</span><span class="badge">${retraso ? `Retraso de ${plural(retraso, "día", "días")}` : fase === "menstrual" ? "Tienes el periodo" : faltan <= 0 ? "Periodo hoy" : `Periodo en ${plural(faltan, "día", "días")}`}</span></div>
+      <span style="font-size:26px;font-weight:800">${F.nombre}</span>
+      <div class="fasebar">${barra}</div>
+      <div class="fasenames"><span>Menstrual</span><span>Folicular</span><span>Ovulatoria</span><span>Lútea</span></div>
+      <p>${F.texto}</p>
     </div>
-    <p class="note">${msg}</p>
-    <div class="card" style="gap:0">${filas || '<p class="muted">Todavía no hay periodos registrados.</p>'}</div>
-    ${form}`;
-}
-function enlazarHistorial() {
+    <div class="card">
+      <div class="row"><h2>Cómo te sientes hoy</h2><button class="btn link" id="editarHoy">${d.lista.length || d.energia ? "Editar" : "Registrar"}</button></div>
+      ${d.lista.length ? `<div class="chips">${d.lista.map(s => `<span class="chip" aria-pressed="true" style="background:var(--ink);color:var(--surface);border-color:var(--ink)">${esc(s)}</span>`).join("")}</div>` : `<p class="muted">Todavía no has anotado nada hoy.</p>`}
+      ${d.energia || d.sueno ? `<p class="muted small">${[d.energia ? `Energía ${d.energia} de 5` : "", d.sueno ? `has dormido ${SUENO[d.sueno].toLowerCase()}` : ""].filter(Boolean).join(" · ")}</p>` : ""}
+    </div>
+    <div class="card" style="gap:10px">
+      <h2>Historial</h2>
+      <div class="stats">
+        <div class="stat" style="box-shadow:none;background:var(--bg)"><small>Ciclo medio</small><b>${st.ciclo}</b><span>días</span></div>
+        <div class="stat" style="box-shadow:none;background:var(--bg)"><small>Periodo medio</small><b>${st.regla}</b><span>días</span></div>
+        <div class="stat" style="box-shadow:none;background:var(--bg)"><small>Próximo</small><b>${prox.getDate()}</b><span>de ${esc(prox.toLocaleDateString("es-ES", { month: "long" }))}</span></div>
+      </div>
+      <p class="note">${msg}</p>
+      <div>${filas || '<p class="muted">Todavía no hay periodos registrados.</p>'}</div>
+      ${ps.length > 4 ? `<button class="btn link" id="verTodo">${verTodoHistorial ? "Ver menos" : `Ver todo el historial (${ps.length})`}</button>` : ""}
+    </div>
+    ${form}
+    ${htmlPatrones()}
+  </div>`;
+  $("#editarHoy").onclick = () => abrirSintomas(today(), "ciclo");
+  const vt = $("#verTodo"); if (vt) vt.onclick = () => { verTodoHistorial = !verTodoHistorial; renderCiclo(); };
   document.querySelectorAll("[data-dur]").forEach(b => b.onclick = () => ocupado(b, async () => {
     const p = state.periodos.find(x => x.fecha === b.dataset.dur);
-    await guardarPeriodo(p.fecha, Math.min(15, Math.max(1, duracionDe(p) + Number(b.dataset.d)))); renderCal();
+    await guardarPeriodo(p.fecha, Math.min(15, Math.max(1, duracionDe(p) + Number(b.dataset.d)))); renderCiclo();
   }));
-  const bp = $("#btnPasada"); if (bp) bp.onclick = () => { anadiendo = true; renderCal(); };
-  const cp = $("#cancelPasada"); if (cp) cp.onclick = () => { anadiendo = false; renderCal(); };
+  const bp = $("#btnPasada"); if (bp) bp.onclick = () => { anadiendo = true; renderCiclo(); };
+  const cp = $("#cancelPasada"); if (cp) cp.onclick = () => { anadiendo = false; renderCiclo(); };
   const fp = $("#formPasada");
   if (fp) fp.onsubmit = e => {
     e.preventDefault();
     const f = new FormData(fp), fecha = f.get("fecha"), dur = Math.min(15, Math.max(1, parseInt(f.get("dur"), 10) || 5));
     if (!fecha) return toast("Indica el día en que empezó");
-    ocupado(fp.querySelector("[type=submit]"), async () => { await guardarPeriodo(fecha, dur); anadiendo = false; renderCal(); toast("Periodo añadido"); });
+    ocupado(fp.querySelector("[type=submit]"), async () => { await guardarPeriodo(fecha, dur); anadiendo = false; renderCiclo(); toast("Periodo añadido"); });
   };
-}
-
-/* =========================================================
-   PANTALLA: UN DÍA (síntomas, entrenos y meditación)
-   ========================================================= */
-let fechaSint = today(), borrador = null;
-function renderSint() {
-  const k = toKey(fechaSint), hoy = today();
-  const g = state.sintomas[k] || { lista: [], energia: 0, nota: "" };
-  if (!borrador || borrador.k !== k) borrador = { k, lista: [...g.lista], energia: g.energia || 0, nota: g.nota || "" };
-  const info = infoFecha(fechaSint), titulo = +fechaSint === +hoy ? "Hoy" : capital(fmtLargo(fechaSint));
-  const ents = entrenosDe(k), meds = state.meditaciones.filter(m => m.fecha === k);
-  $("#v-sint").innerHTML = `<div class="stack">
-    <div class="date-nav"><button class="iconbtn" id="sPrev" aria-label="Día anterior">‹</button><h2>${esc(titulo)}</h2><button class="iconbtn" id="sNext" aria-label="Día siguiente" ${+fechaSint >= +hoy ? "disabled style='opacity:.3'" : ""}>›</button></div>
-    <div style="text-align:center"><span class="badge">Día ${info.dia} · ${FASES[info.fase].nombre}</span></div>
-    <div class="card"><h2>¿Qué has notado?</h2><div class="chips">${SINTOMAS.map(s => `<button class="chip" data-s="${esc(s)}" aria-pressed="${borrador.lista.includes(s)}">${esc(s)}</button>`).join("")}</div></div>
-    <div class="card"><h2>¿Cuánta energía tienes?</h2><div class="energy">${[1, 2, 3, 4, 5].map(n => `<button data-e="${n}" aria-pressed="${borrador.energia === n}" aria-label="Energía ${n} de 5">${n}</button>`).join("")}</div><div class="scale"><span>Agotada</span><span>A tope</span></div></div>
-    <div class="card"><h2>Notas</h2><label class="sr" for="nota">Notas del día</label><textarea id="nota" placeholder="Cualquier cosa que quieras recordar de este día">${esc(borrador.nota)}</textarea></div>
-    <button class="btn primary block" id="btnGuardarSint">Guardar</button>
-    <div class="card menta"><h2>Movimiento</h2>
-      ${ents.length ? ents.map(e => `<div class="item"><span>${esc(resumenEntreno(e))}${e.esfuerzo ? ` · <span class="muted">${ESFUERZO[e.esfuerzo].toLowerCase()}</span>` : ""}</span><button class="x" data-borrar-entreno="${e.id}" aria-label="Borrar entreno">✕</button></div>`).join("") : '<p class="small" style="color:var(--menta-ink)">Ningún entreno registrado este día.</p>'}
-      <button class="btn soft" id="btnEntrenoDia">+ Añadir entreno</button>
-    </div>
-    ${meds.length ? `<div class="card lavanda"><h2>Meditación</h2><p>${plural(meds.reduce((a, m) => a + m.minutos, 0), "minuto", "minutos")} para ti este día.</p></div>` : ""}
-    ${htmlPatrones()}
-  </div>`;
-  $("#sPrev").onclick = () => { fechaSint = addDays(fechaSint, -1); renderSint(); };
-  $("#sNext").onclick = () => { if (fechaSint < hoy) { fechaSint = addDays(fechaSint, 1); renderSint(); } };
-  document.querySelectorAll("#v-sint .chip[data-s]").forEach(c => c.onclick = () => {
-    const s = c.dataset.s, i = borrador.lista.indexOf(s);
-    if (i >= 0) borrador.lista.splice(i, 1); else borrador.lista.push(s);
-    c.setAttribute("aria-pressed", i < 0);
-  });
-  document.querySelectorAll("#v-sint .energy button").forEach(b => b.onclick = () => {
-    const n = +b.dataset.e; borrador.energia = borrador.energia === n ? 0 : n;
-    document.querySelectorAll("#v-sint .energy button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.e === borrador.energia));
-  });
-  $("#nota").oninput = e => { borrador.nota = e.target.value; };
-  const bg = $("#btnGuardarSint");
-  bg.onclick = () => ocupado(bg, async () => {
-    const vacioDia = !borrador.lista.length && !borrador.energia && !borrador.nota.trim();
-    const dia = vacioDia ? null : { lista: [...borrador.lista], energia: borrador.energia, nota: borrador.nota.trim() };
-    await guardarDia(k, dia);
-    if (dia) state.sintomas[k] = dia; else delete state.sintomas[k];
-    borrador = null; renderSint(); toast(vacioDia ? "Día sin anotaciones" : "Guardado");
-  });
-  $("#btnEntrenoDia").onclick = () => abrirEntreno(fechaSint);
-  document.querySelectorAll("[data-borrar-entreno]").forEach(b => b.onclick = () => {
-    if (!confirm("¿Borrar este entreno?")) return;
-    ocupado(b, async () => { await borrarEntreno(+b.dataset.borrarEntreno); renderSint(); toast("Entreno borrado"); });
-  });
 }
 function htmlPatrones() {
   const cuenta = { menstrual: {}, folicular: {}, ovulatoria: {}, lutea: {} }; let total = 0;
@@ -1047,36 +1074,65 @@ function htmlPatrones() {
   if (total < 5) return `<div class="card"><h2>Tus patrones</h2><p class="muted">Cuando lleves unos días anotando, aquí verás qué se repite en cada fase.</p></div>`;
   const filas = ORDEN.map(f => {
     const top = Object.entries(cuenta[f]).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0].toLowerCase());
-    return `<div><b>${FASES[f].nombre}:</b> ${esc(top.length ? top.join(", ") : "sin síntomas destacables")}</div>`;
+    return `<div><b>${FASES[f].nombre.replace("Fase ", "")}:</b> ${esc(top.length ? top.join(", ") : "sin síntomas destacables")}</div>`;
   }).join("");
-  // Energía el día después de entrenar frente al resto
-  const tras = [], resto = [], diasEntreno = new Set(state.entrenos.map(e => e.fecha));
-  for (const [k, v] of Object.entries(state.sintomas)) if (v.energia) (diasEntreno.has(toKey(addDays(fromKey(k), -1))) ? tras : resto).push(v.energia);
-  const media = a => a.reduce((x, y) => x + y, 0) / a.length;
-  const extra = tras.length >= 3 && resto.length >= 3 ? `<p class="note">Los días después de entrenar tu energía media es ${num(media(tras))}, frente a ${num(media(resto))} el resto de días.</p>` : "";
-  return `<div class="card"><h2>Tus patrones</h2><p class="muted small">Lo que más se repite en cada fase según tus anotaciones.</p>${filas}${extra}</div>`;
+  return `<div class="card"><h2>Tus patrones</h2><p class="muted small">Lo que más se repite en cada fase según tus anotaciones.</p>${filas}</div>`;
 }
 
 /* =========================================================
-   PANTALLA: REGISTRAR ENTRENO
+   PANTALLA: SÍNTOMAS DE UN DÍA (se abre desde +, Hoy, Ciclo o Calendario)
+   ========================================================= */
+let fechaSint = today(), borrador = null, volverDeSint = "ciclo";
+function abrirSintomas(fecha, volver) { fechaSint = fecha; borrador = null; volverDeSint = volver || "ciclo"; irA("sint"); }
+function renderSint() {
+  const k = toKey(fechaSint), hoy = today(), g = diaDe(k);
+  if (!borrador || borrador.k !== k) borrador = { k, lista: [...g.lista], energia: g.energia || 0, nota: g.nota || "", sueno: g.sueno || 0 };
+  const info = infoFecha(fechaSint), titulo = +fechaSint === +hoy ? "Hoy" : capital(fmtLargo(fechaSint));
+  $("#v-sint").innerHTML = `<div class="stack">
+    <div class="date-nav"><button class="iconbtn" id="sPrev" aria-label="Día anterior">‹</button><h2>${esc(titulo)}</h2><button class="iconbtn" id="sNext" aria-label="Día siguiente" ${+fechaSint >= +hoy ? "disabled style='opacity:.3'" : ""}>›</button></div>
+    <div style="text-align:center"><span class="badge">Día ${info.dia} · ${FASES[info.fase].nombre}</span></div>
+    <div class="card"><h2>¿Qué has notado?</h2><div class="chips">${SINTOMAS.map(s => `<button class="chip" data-s="${esc(s)}" aria-pressed="${borrador.lista.includes(s)}">${esc(s)}</button>`).join("")}</div></div>
+    <div class="card"><h2>¿Cuánta energía tienes?</h2><div class="energy">${[1, 2, 3, 4, 5].map(n => `<button data-e="${n}" aria-pressed="${borrador.energia === n}" aria-label="Energía ${n} de 5">${n}</button>`).join("")}</div><div class="scale"><span>Agotada</span><span>A tope</span></div></div>
+    <div class="card"><h2>¿Qué tal dormiste?</h2><div class="sueno">${[1, 2, 3, 4, 5].map(n => `<button data-sn="${n}" aria-pressed="${borrador.sueno === n}">${SUENO[n]}</button>`).join("")}</div></div>
+    <div class="card"><h2>Notas</h2><label class="sr" for="nota">Notas del día</label><textarea id="nota" placeholder="Cualquier cosa que quieras recordar de este día">${esc(borrador.nota)}</textarea></div>
+    <button class="btn primary block" id="btnGuardarSint">Guardar</button>
+    <button class="btn link" data-ir="${volverDeSint}">Cancelar</button>
+  </div>`;
+  $("#sPrev").onclick = () => { fechaSint = addDays(fechaSint, -1); renderSint(); };
+  $("#sNext").onclick = () => { if (fechaSint < hoy) { fechaSint = addDays(fechaSint, 1); renderSint(); } };
+  document.querySelectorAll("#v-sint .chip[data-s]").forEach(c => c.onclick = () => {
+    const s = c.dataset.s, i = borrador.lista.indexOf(s);
+    if (i >= 0) borrador.lista.splice(i, 1); else borrador.lista.push(s);
+    c.setAttribute("aria-pressed", i < 0);
+  });
+  const grupo = (sel, campo) => document.querySelectorAll(sel).forEach(b => b.onclick = () => {
+    const n = +(b.dataset.e || b.dataset.sn); borrador[campo] = borrador[campo] === n ? 0 : n;
+    document.querySelectorAll(sel).forEach(x => x.setAttribute("aria-pressed", +(x.dataset.e || x.dataset.sn) === borrador[campo]));
+  });
+  grupo("#v-sint .energy button", "energia"); grupo("#v-sint .sueno button", "sueno");
+  $("#nota").oninput = e => { borrador.nota = e.target.value; };
+  const bg = $("#btnGuardarSint");
+  bg.onclick = () => ocupado(bg, async () => {
+    await guardarDia(k, { lista: borrador.lista, energia: borrador.energia, nota: borrador.nota, sueno: borrador.sueno });
+    borrador = null; toast("Guardado"); irA(volverDeSint);
+  });
+}
+
+/* =========================================================
+   PANTALLA: NUEVA ACTIVIDAD
    ========================================================= */
 let ent = null;
-function abrirEntreno(fecha) {
-  ent = { fecha: toKey(fecha), tipo: "correr", duracion_min: "", distancia_km: "", fc_media: "", fc_max: "", pasos: "", zonas: [], ejercicios: "", esfuerzo: 0, nota: "" };
-  irA("entreno");
-}
+const entVacio = fecha => ({ fecha, tipo: "correr", duracion_min: "", distancia_km: "", fc_media: "", fc_max: "", pasos: "", zonas: [], ejercicios: "", esfuerzo: 0, nota: "" });
+function abrirEntreno(fecha) { ent = entVacio(toKey(fecha)); irA("entreno"); }
 function renderEntreno() {
-  if (!ent) ent = { fecha: toKey(today()), tipo: "correr", duracion_min: "", distancia_km: "", fc_media: "", fc_max: "", pasos: "", zonas: [], ejercicios: "", esfuerzo: 0, nota: "" };
+  if (!ent) ent = entVacio(toKey(today()));
   const t = TIPOS[ent.tipo];
   const campo = (name, label, ph, step = "1") => `<label class="field"><span>${label}</span><input type="number" inputmode="decimal" min="0" step="${step}" name="${name}" value="${esc(ent[name])}" placeholder="${ph}"></label>`;
   $("#v-entreno").innerHTML = `<form class="stack" id="formEntreno" novalidate>
-    <div class="row"><h1>Nuevo entreno</h1><button type="button" class="btn link" data-ir="hoy">Cancelar</button></div>
+    <div class="row"><h1>Nueva actividad</h1><button type="button" class="btn link" data-ir="act">Cancelar</button></div>
     <div class="card"><h2>¿Qué has hecho?</h2><div class="chips">${Object.entries(TIPOS).map(([k, v]) => `<button type="button" class="chip" data-tipo="${k}" aria-pressed="${ent.tipo === k}">${v.n}</button>`).join("")}</div></div>
     <div class="card">
-      <div class="grid2">
-        <label class="field"><span>Día</span><input type="date" name="fecha" max="${toKey(today())}" value="${ent.fecha}"></label>
-        ${campo("duracion_min", "Duración (min)", "45")}
-      </div>
+      <div class="grid2"><label class="field"><span>Día</span><input type="date" name="fecha" max="${toKey(today())}" value="${ent.fecha}"></label>${campo("duracion_min", "Duración (min)", "45")}</div>
       ${t.dist ? `<div class="grid2">${campo("distancia_km", "Distancia (km)", "5,2", "0.01")}<div class="field"><span style="display:block;font-weight:700;margin-bottom:6px">Ritmo</span><div class="calc" id="ritmo">${ritmo(ent) || "Se calcula solo"}</div></div></div>` : ""}
       ${t.fc ? `<div class="grid2">${campo("fc_media", "Pulsaciones medias", "145")}${campo("fc_max", "Pulsaciones máximas", "172")}</div>` : ""}
       ${t.pasos ? campo("pasos", "Pasos", "8000") : ""}
@@ -1088,8 +1144,8 @@ function renderEntreno() {
       <div class="energy">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-esf="${n}" aria-pressed="${ent.esfuerzo === n}" aria-label="${ESFUERZO[n]}">${n}</button>`).join("")}</div>
       <div class="scale"><span>Muy fácil</span><span>Al límite</span></div>
     </div>
-    <div class="card"><h2>Notas</h2><label class="sr" for="notaEnt">Notas del entreno</label><textarea id="notaEnt" name="nota" placeholder="Cómo te has sentido, molestias, sensaciones…">${esc(ent.nota)}</textarea></div>
-    <button class="btn primary block" type="submit">Guardar entreno</button>
+    <div class="card"><h2>Notas</h2><label class="sr" for="notaEnt">Notas</label><textarea id="notaEnt" name="nota" placeholder="Cómo te has sentido, molestias, sensaciones…">${esc(ent.nota)}</textarea></div>
+    <button class="btn primary block" type="submit">Guardar actividad</button>
   </form>`;
   const form = $("#formEntreno");
   const leer = () => { const f = new FormData(form); ["fecha", "duracion_min", "distancia_km", "fc_media", "fc_max", "pasos", "ejercicios", "nota"].forEach(n => { if (f.has(n)) ent[n] = f.get(n); }); };
@@ -1100,66 +1156,147 @@ function renderEntreno() {
   form.onsubmit = e => {
     e.preventDefault(); leer();
     const n = v => { const x = parseFloat(String(v).replace(",", ".")); return isFinite(x) && x > 0 ? x : null; };
+    const T = TIPOS[ent.tipo];
     const fila = {
       fecha: ent.fecha || toKey(today()), tipo: ent.tipo, duracion_min: n(ent.duracion_min) ? Math.round(n(ent.duracion_min)) : null,
-      distancia_km: TIPOS[ent.tipo].dist ? n(ent.distancia_km) : null, fc_media: TIPOS[ent.tipo].fc && n(ent.fc_media) ? Math.round(n(ent.fc_media)) : null,
-      fc_max: TIPOS[ent.tipo].fc && n(ent.fc_max) ? Math.round(n(ent.fc_max)) : null, pasos: TIPOS[ent.tipo].pasos && n(ent.pasos) ? Math.round(n(ent.pasos)) : null,
-      zonas: TIPOS[ent.tipo].zonas ? ent.zonas : [], ejercicios: TIPOS[ent.tipo].ejercicios ? (ent.ejercicios || "").trim() || null : null,
+      distancia_km: T.dist ? n(ent.distancia_km) : null, fc_media: T.fc && n(ent.fc_media) ? Math.round(n(ent.fc_media)) : null,
+      fc_max: T.fc && n(ent.fc_max) ? Math.round(n(ent.fc_max)) : null, pasos: T.pasos && n(ent.pasos) ? Math.round(n(ent.pasos)) : null,
+      zonas: T.zonas ? ent.zonas : [], ejercicios: T.ejercicios ? (ent.ejercicios || "").trim() || null : null,
       esfuerzo: ent.esfuerzo || null, nota: (ent.nota || "").trim() || null
     };
     if (!fila.duracion_min && !fila.distancia_km) return toast("Indica al menos la duración");
     ocupado(form.querySelector("[type=submit]"), async () => {
-      const guardado = await guardarEntreno(fila);
-      ent = null; vista = fila.fecha === toKey(today()) ? "hoy" : "sint";
-      const semana = state.entrenos.filter(x => diffDays(fromKey(x.fecha), today()) <= 6 && diffDays(fromKey(x.fecha), today()) >= 0).length;
-      celebrar("¡Entreno registrado!", `${resumenEntreno(guardado)}. Llevas ${plural(semana, "entreno", "entrenos")} esta semana.`);
+      const g = await guardarEntreno(fila), esHoy = fila.fecha === toKey(today());
+      ent = null; vista = "act";
+      const fase = infoFecha(fromKey(fila.fecha)).fase;
+      celebrar(azar(CELEBRA_ACTIVIDAD), `${resumenEntreno(g)}. ${FRASE_FASE[fase]}${esHoy ? " Hemos ajustado tu alimentación de hoy para ayudarte a recuperar." : ""}`);
     });
   };
 }
+const azar = arr => arr[Math.floor(Math.random() * arr.length)];
 
 /* =========================================================
-   PANTALLA: BIENESTAR
+   PANTALLA: ACTIVIDAD
    ========================================================= */
-let pestanaBien = "comida";
-function renderBien() {
-  const hoy = today(), { dia, fase } = infoFecha(hoy), F = FASES[fase], aj = ajustesDe(hoy);
-  let cuerpo;
-  if (pestanaBien === "comida") {
-    const m = menuDe(hoy, fase);
-    const plato = (t, [p, por]) => `<div class="plato"><span class="dot"></span><div><span class="label">${t}</span><strong>${esc(p)}</strong><span class="muted small">${esc(por)}</span></div></div>`;
-    cuerpo = `${aj.comida.length ? `<div class="note">Según lo que has registrado:<ul>${aj.comida.map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
-      <h2>Tu menú de hoy</h2>
-      ${plato("Desayuno", m.desayuno)}${plato("Comida", m.comida)}${plato("Cena", m.cena)}
-      <div style="text-align:center"><button class="btn link" id="otroMenu">Proponme otro menú</button></div>
-      <div class="card melocoton"><h2>Te sientan bien en esta fase</h2>
-        <div class="chips">${F.alimentos.map(a => `<span class="chip suave">${esc(a)}</span>`).join("")}</div>
-        <div style="border-top:1px solid rgba(122,92,72,.2);padding-top:12px"><span class="label">Mejor con moderación</span><p style="margin-top:6px">${esc(F.moderar)}</p></div>
-      </div>`;
-  } else {
-    const E = F.ejercicio, nivel = aj.suave ? Math.min(E.nivel, 1) : E.nivel;
-    const recientes = state.entrenos.slice(0, 5);
-    cuerpo = `${aj.ejercicio.length ? `<div class="note">Según lo que has registrado:<ul>${aj.ejercicio.map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>` : ""}
-      <div class="card menta">
-        <h2>Cómo moverte hoy</h2>
-        <div><span class="small" style="color:var(--menta-ink)">Intensidad recomendada</span><div class="nivel" style="margin:6px 0">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= nivel ? "on" : ""}"></i>`).join("")}</div><b>${aj.suave ? "Suave" : E.etiqueta}</b></div>
-        <div class="chips">${(aj.suave ? ["Paseo", "Estiramientos", "Yoga suave"] : E.actividades).map(a => `<span class="chip suave">${esc(a)}</span>`).join("")}</div>
-        <p>${esc(E.consejo)}</p>
-        <div class="mini"><span class="label" style="color:var(--menta-ink)">Antes de entrenar</span><span>${esc(E.antes)}</span></div>
-        <div class="mini"><span class="label" style="color:var(--menta-ink)">Después de entrenar</span><span>${esc(E.despues)}</span></div>
+function renderAct() {
+  const hoy = today(), { dia, fase } = infoFecha(hoy), F = FASES[fase], E = F.ejercicio, aj = ajustesDe(hoy);
+  const nivel = aj.suave ? Math.min(E.nivel, 1) : E.nivel;
+  const lunes = lunesDe(hoy), dom = addDays(lunes, 6);
+  const semana = state.entrenos.filter(e => { const d = fromKey(e.fecha); return d >= lunes && d <= hoy; });
+  const minutos = semana.reduce((a, e) => a + (e.duracion_min || 0), 0), km = semana.reduce((a, e) => a + (Number(e.distancia_km) || 0), 0);
+  const porDia = [0, 1, 2, 3, 4, 5, 6].map(i => entrenosDe(toKey(addDays(lunes, i))).reduce((a, e) => a + (e.duracion_min || 0), 0));
+  const max = Math.max(60, ...porDia);
+  const barras = porDia.map((m, i) => `<div><span class="${m ? "" : "cero"}" style="height:${m ? Math.max(8, Math.round(m / max * 80)) : 4}px" title="${m} min"></span><small>${"LMXJVSD"[i]}</small></div>`).join("");
+  const recientes = state.entrenos.slice(0, 8);
+  // Energía el día después de moverte frente al resto
+  const tras = [], resto = [], diasEntreno = new Set(state.entrenos.map(e => e.fecha));
+  for (const [k, v] of Object.entries(state.sintomas)) if (v.energia) (diasEntreno.has(toKey(addDays(fromKey(k), -1))) ? tras : resto).push(v.energia);
+  const media = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const insight = tras.length >= 3 && resto.length >= 3 ? `<p class="note">Los días después de moverte tu energía media es ${num(media(tras))}, frente a ${num(media(resto))} el resto de días.</p>` : "";
+  const cuando = k => { const d = diffDays(fromKey(k), hoy); return d === 0 ? "Hoy" : d === 1 ? "Ayer" : capital(fmtCorto(fromKey(k))); };
+
+  $("#v-act").innerHTML = `${cabecera("Actividad")}<div class="stack">
+    <p class="sub">Adaptado a tu ${F.nombre.toLowerCase()} y a tu actividad de la semana.</p>
+    ${aj.ejercicio.length ? `<p class="note">${esc(aj.ejercicio[0])}</p>` : ""}
+    <div class="card menta">
+      <div class="row"><h2>Cómo moverte hoy</h2><span class="badge" style="background:rgba(255,255,255,.6);color:var(--menta-ink)">Día ${dia}</span></div>
+      <div><span class="small" style="color:var(--menta-ink)">Intensidad recomendada</span><div class="nivel" style="margin:6px 0">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= nivel ? "on" : ""}"></i>`).join("")}</div><b>${aj.suave ? "Suave" : E.etiqueta}</b></div>
+      <div class="chips">${(aj.suave ? ["Paseo", "Estiramientos", "Yoga suave"] : E.actividades).map(a => `<span class="chip suave">${esc(a)}</span>`).join("")}</div>
+      <p>${esc(E.consejo)}</p>
+    </div>
+    <div class="card">
+      <div class="row"><h2>Esta semana</h2><span class="muted small">${esc(fmtCorto(lunes))} – ${esc(fmtCorto(dom))}</span></div>
+      <div class="semana">
+        <div><b>${semana.length}</b><small>${semana.length === 1 ? "actividad" : "actividades"}</small></div>
+        <div><b>${minutos}</b><small>minutos</small></div>
+        <div><b>${km ? num(km) : "0"}</b><small>km</small></div>
       </div>
-      <div class="card"><div class="row"><h2>Tus entrenos</h2><button class="btn link" id="nuevoEntreno">+ Registrar</button></div>
-        ${recientes.length ? recientes.map(e => `<div class="item"><span><b>${esc(capital(fmtCorto(fromKey(e.fecha))))}</b> · ${esc(resumenEntreno(e))}</span></div>`).join("") : '<p class="muted">Aún no has registrado ningún entreno.</p>'}
-      </div>`;
-  }
-  $("#v-bien").innerHTML = `<div class="stack">
-    <div class="row"><h1>Bienestar</h1><span class="badge">${F.nombre} · día ${dia}</span></div>
-    <div class="segment" role="tablist"><button role="tab" data-bien-tab="comida" aria-selected="${pestanaBien === "comida"}">Alimentación</button><button role="tab" data-bien-tab="ejercicio" aria-selected="${pestanaBien === "ejercicio"}">Ejercicio</button></div>
-    ${cuerpo}
-    <button class="btn soft block" data-ir="asis">Pregunta al asistente por más ideas</button>
+      <div class="barras" aria-label="Minutos de actividad por día">${barras}</div>
+    </div>
+    <div class="card"><div class="row"><h2>Tus actividades</h2><button class="btn link" id="nuevaAct">+ Registrar</button></div>
+      ${recientes.length ? recientes.map(e => `<div class="item"><span><b>${esc(cuando(e.fecha))}</b> · ${esc(resumenEntreno(e))}${e.esfuerzo ? ` <span class="muted">· ${ESFUERZO[e.esfuerzo].toLowerCase()}</span>` : ""}</span><button class="x" data-borrar-entreno="${e.id}" aria-label="Borrar actividad">✕</button></div>`).join("") : '<p class="muted">Aún no has registrado ninguna actividad.</p>'}
+    </div>
+    ${insight}
   </div>`;
-  document.querySelectorAll("[data-bien-tab]").forEach(b => b.onclick = () => { pestanaBien = b.dataset.bienTab; renderBien(); });
-  const om = $("#otroMenu"); if (om) om.onclick = () => { menuExtra++; renderBien(); };
-  const ne = $("#nuevoEntreno"); if (ne) ne.onclick = () => abrirEntreno(today());
+  $("#nuevaAct").onclick = () => abrirEntreno(today());
+  document.querySelectorAll("[data-borrar-entreno]").forEach(b => b.onclick = () => {
+    if (!confirm("¿Borrar esta actividad?")) return;
+    ocupado(b, async () => { await borrarEntreno(+b.dataset.borrarEntreno); renderAct(); toast("Actividad borrada"); });
+  });
+}
+
+/* =========================================================
+   PANTALLA: ALIMENTACIÓN
+   ========================================================= */
+function renderAli() {
+  const hoy = today(), { fase } = infoFecha(hoy), F = FASES[fase], aj = ajustesDe(hoy), m = menuDe(hoy, fase);
+  const etiquetas = { desayuno: aj.antojos ? "Para los antojos" : "", comida: aj.hinchazon ? "Poca sal" : "", cena: aj.entrenoHoy ? "Recuperación" : "" };
+  const extra = { desayuno: aj.antojos ? " Saciante y con un toque dulce sin picos de azúcar." : "", comida: aj.hinchazon ? " Hoy, cocinado con poca sal para la hinchazón." : "", cena: aj.entrenoHoy ? " Tras tu actividad de hoy, te ayuda a recuperar." : "" };
+  const plato = (clave, t, [p, por]) => `<div class="plato"><span class="dot"></span><div><span class="label">${t}</span>${etiquetas[clave] ? `<span class="tag">${etiquetas[clave]}</span>` : ""}<strong>${esc(p)}</strong><span class="muted small">${esc(por + extra[clave])}</span></div></div>`;
+  const motivos = [F.nombre.toLowerCase(), aj.entrenoHoy ? "a tu actividad de hoy" : "", aj.antojos || aj.hinchazon ? "a cómo te sientes" : ""].filter(Boolean);
+  const sub = motivos.length === 1 ? `Adaptado a tu ${motivos[0]}.` : `Adaptado a tu ${motivos.slice(0, -1).join(", ")} y ${motivos[motivos.length - 1]}.`;
+  $("#v-ali").innerHTML = `${cabecera("Alimentación")}<div class="stack">
+    <p class="sub">${sub}</p>
+    <h2>Tu menú de hoy</h2>
+    ${plato("desayuno", "Desayuno", m.desayuno)}${plato("comida", "Comida", m.comida)}${plato("cena", "Cena", m.cena)}
+    <div style="text-align:center"><button class="btn link" id="otroMenu">Proponme otro menú</button></div>
+    <div class="card melocoton"><h2>Antes y después de moverte</h2>
+      <div class="mini"><span class="label">Antes</span><span>${esc(F.ejercicio.antes)}</span></div>
+      <div class="mini"><span class="label">Después</span><span>${esc(F.ejercicio.despues)}</span></div>
+    </div>
+    <div class="card"><h2>Te sientan bien en esta fase</h2>
+      <div class="chips">${F.alimentos.map(a => `<span class="chip">${esc(a)}</span>`).join("")}</div>
+      <div style="border-top:1px solid var(--line);padding-top:12px"><span class="label">Con moderación</span><p style="margin-top:6px">${esc(F.moderar)}</p></div>
+    </div>
+  </div>`;
+  $("#otroMenu").onclick = () => { menuExtra++; renderAli(); };
+}
+
+/* =========================================================
+   PANTALLA: CALENDARIO (transversal)
+   ========================================================= */
+let mesCal = new Date(today().getFullYear(), today().getMonth(), 1), diaSel = today();
+function renderCal() {
+  const hoy = today(), y = mesCal.getFullYear(), m = mesCal.getMonth();
+  const primero = new Date(y, m, 1), nDias = new Date(y, m + 1, 0).getDate(), offset = (primero.getDay() + 6) % 7;
+  const medDias = new Set(state.meditaciones.map(x => x.fecha));
+  let celdas = ["L", "M", "X", "J", "V", "S", "D"].map(d => `<div class="dow" aria-hidden="true">${d}</div>`).join("");
+  for (let i = 0; i < offset; i++) celdas += `<div class="day empty"></div>`;
+  for (let d = 1; d <= nDias; d++) {
+    const f = new Date(y, m, d), k = toKey(f), futuro = f > hoy;
+    let cls = "day";
+    if (+f === +diaSel) cls += " sel"; else if (!futuro && esDiaDeRegla(f)) cls += " regla"; else if (esReglaPrevista(f)) cls += " prevista";
+    if (+f === +hoy) cls += " hoy";
+    const r = state.sintomas[k], s = r && (r.lista.length || r.energia || r.nota || r.sueno), e = entrenosDe(k).length > 0, md = medDias.has(k);
+    const dots = (s ? '<i style="background:var(--brown)"></i>' : "") + (e ? '<i style="background:var(--menta-dot)"></i>' : "") + (md ? '<i style="background:var(--lavanda-dot)"></i>' : "");
+    celdas += `<button class="${cls}" data-k="${k}" ${futuro ? "disabled" : ""} aria-label="${esc(fmtCorto(f))}" aria-pressed="${+f === +diaSel}">${d}${dots ? `<span class="dots">${dots}</span>` : ""}</button>`;
+  }
+  const k = toKey(diaSel), info = infoFecha(diaSel), d = diaDe(k), ents = entrenosDe(k), meds = state.meditaciones.filter(x => x.fecha === k);
+  const linea = (color, tit, txt) => `<div class="linea"><span class="dot" style="background:${color}"></span><div><b>${tit}</b><p class="muted small">${txt}</p></div></div>`;
+  const regla = esDiaDeRegla(diaSel) ? linea("var(--pink)", "Periodo", "Día de periodo") : "";
+  const sint = d.lista.length || d.energia || d.nota ? linea("var(--brown)", "Cómo te sentiste", esc([d.lista.join(", "), d.energia ? `energía ${d.energia}/5` : "", d.nota ? `“${d.nota}”` : ""].filter(Boolean).join(" · "))) : "";
+  const sueno = d.sueno ? linea("var(--brown)", "Sueño", `Dormiste ${SUENO[d.sueno].toLowerCase()}`) : "";
+  const act = ents.length ? linea("var(--menta-dot)", "Actividad", ents.map(e => esc(resumenEntreno(e))).join("<br>")) : "";
+  const med = meds.length ? linea("var(--lavanda-dot)", "Meditación", plural(meds.reduce((a, x) => a + x.minutos, 0), "minuto", "minutos")) : "";
+  const vacio = !regla && !sint && !sueno && !act && !med;
+  $("#v-cal").innerHTML = `<div class="stack">
+    <div class="cab"><button class="iconbtn" data-ir="hoy" aria-label="Volver">‹</button><h1>Calendario</h1></div>
+    <div class="card">
+      <div class="cal-head"><button class="iconbtn" id="calPrev" aria-label="Mes anterior">‹</button><h2>${esc(primero.toLocaleDateString("es-ES", { month: "long", year: "numeric" }))}</h2><button class="iconbtn" id="calNext" aria-label="Mes siguiente">›</button></div>
+      <div class="cal-grid">${celdas}</div>
+    </div>
+    <div class="legend"><span><i style="background:var(--pink)"></i>Periodo</span><span><i style="border:1.5px dashed var(--pink)"></i>Previsto</span><span><i style="background:var(--brown)"></i>Síntomas y sueño</span><span><i style="background:var(--menta-dot)"></i>Actividad</span><span><i style="background:var(--lavanda-dot)"></i>Meditación</span></div>
+    <div class="card detalle">
+      <div class="row"><h3>${esc(capital(fmtLargo(diaSel)))}</h3><span class="badge">Día ${info.dia} · ${FASES[info.fase].nombre.replace("Fase ", "")}</span></div>
+      ${vacio ? '<p class="muted">No registraste nada este día.</p>' : regla + sint + sueno + act + med}
+      <div class="chips"><button class="chip" id="calSint">${sint || sueno ? "Editar cómo me sentí" : "+ Cómo me sentí"}</button><button class="chip" id="calAct">+ Actividad</button></div>
+    </div>
+  </div>`;
+  $("#calPrev").onclick = () => { mesCal = new Date(y, m - 1, 1); renderCal(); };
+  $("#calNext").onclick = () => { mesCal = new Date(y, m + 1, 1); renderCal(); };
+  document.querySelectorAll("#v-cal .day[data-k]").forEach(b => b.onclick = () => { diaSel = fromKey(b.dataset.k); renderCal(); });
+  $("#calSint").onclick = () => abrirSintomas(diaSel, "cal");
+  $("#calAct").onclick = () => abrirEntreno(diaSel);
 }
 
 /* =========================================================
@@ -1185,9 +1322,9 @@ const mmss = s => `${pad(Math.floor(s / 60))}:${pad(Math.floor(s % 60))}`;
 async function terminarMeditacion(minutos) {
   clearInterval(med.intervalo); med.estado = "parado"; med.restante = med.minutos * 60;
   if (minutos < 1) { renderMed(); return; }
+  const recomendada = meditacionRecomendada(today());
   try { await guardarMeditacion(minutos); } catch (e) { renderMed(); return; }
-  const r = racha();
-  celebrar("¡Meditación completada!", `${plural(minutos, "minuto", "minutos")} para ti. ${r > 1 ? `Llevas ${r} días seguidos meditando.` : "Has empezado una racha: vuelve mañana para mantenerla."}`);
+  celebrar(azar(CELEBRA_MEDITACION), `${plural(minutos, "minuto", "minutos")} solo para ti. ${fraseRacha(racha())}${recomendada ? " Justo lo que necesitabas en esta fase." : ""}`);
 }
 function tick() {
   med.restante = Math.max(0, (med.fin - Date.now()) / 1000);
@@ -1200,34 +1337,51 @@ function pintarTimer() {
   const circ = 2 * Math.PI * 95, frac = med.restante / (med.minutos * 60);
   arc.setAttribute("stroke-dashoffset", (circ * (1 - frac)).toFixed(1));
 }
+function ajustesMeditacion() {
+  const cfg = state.config, auto = cfg.recordatorio !== "fases";
+  const html = `<div class="card" style="gap:0">
+      <div class="switch-row"><span id="lg1">Gong al empezar</span><button class="switch" role="switch" aria-labelledby="lg1" aria-checked="${med.gongInicio}" data-gong="gongInicio"></button></div>
+      <div class="switch-row"><span id="lg2">Gong al terminar</span><button class="switch" role="switch" aria-labelledby="lg2" aria-checked="${med.gongFin}" data-gong="gongFin"></button></div>
+    </div>
+    <h3>Recordatorios</h3>
+    <p class="muted small">La sugerencia aparecerá en tu pantalla de Hoy los días que toque.</p>
+    <button class="opcion" role="radio" aria-checked="${auto}" data-rec="auto"><span class="radio"></span><span><b>Que lo decida SHEblooms</b><small>Los últimos días antes del periodo y los primeros del periodo.</small></span></button>
+    <div class="opcion" role="radio" aria-checked="${!auto}" data-rec="fases" tabindex="0"><span class="radio"></span><span style="flex:1"><b>Elegir yo las fases</b>
+      <span class="chips" style="margin-top:8px">${ORDEN.map(f => `<button class="chip" data-fasemed="${f}" aria-pressed="${!auto && (cfg.fasesMed || []).includes(f)}">${FASES[f].nombre.replace("Fase ", "")}</button>`).join("")}</span></span></div>`;
+  abrirHoja("Ajustes de meditación", html, () => {
+    document.querySelectorAll("[data-gong]").forEach(b => b.onclick = () => { med[b.dataset.gong] = !med[b.dataset.gong]; b.setAttribute("aria-checked", med[b.dataset.gong]); });
+    const guardarRec = async (recordatorio, fasesMed) => { state.config = { ...state.config, recordatorio, fasesMed }; ajustesMeditacion(); try { await guardarPerfil(state.config); } catch (e) {} };
+    document.querySelector('[data-rec="auto"]').onclick = () => guardarRec("auto", state.config.fasesMed || []);
+    const opF = document.querySelector('[data-rec="fases"]');
+    opF.onclick = e => { if (!e.target.closest("[data-fasemed]") && state.config.recordatorio !== "fases") guardarRec("fases", state.config.fasesMed?.length ? state.config.fasesMed : ["menstrual", "lutea"]); };
+    opF.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opF.onclick(e); } };
+    document.querySelectorAll("[data-fasemed]").forEach(b => b.onclick = () => {
+      const f = b.dataset.fasemed, set = new Set(state.config.recordatorio === "fases" ? state.config.fasesMed || [] : []);
+      set.has(f) ? set.delete(f) : set.add(f);
+      guardarRec("fases", [...set]);
+    });
+  });
+  alCerrarHoja = () => { if (vista === "med") renderMed(); };
+}
 function renderMed() {
-  const cfg = state.config, auto = cfg.recordatorio !== "fases", recomendada = meditacionRecomendada(today()), r = racha();
-  const circ = 2 * Math.PI * 95;
+  const recomendada = meditacionRecomendada(today()), r = racha(), circ = 2 * Math.PI * 95;
   const accion = med.estado === "corriendo" ? "Pausar" : med.estado === "pausado" ? "Continuar" : "Empezar";
   $("#v-med").innerHTML = `<div class="stack">
-    <div class="row"><h1>Meditar</h1>${r ? `<span class="badge lavanda">${plural(r, "día seguido", "días seguidos")}</span>` : ""}</div>
+    <div class="cab"><button class="iconbtn" data-ir="hoy" aria-label="Volver">‹</button><h1>Meditar</h1>${r ? `<span class="badge lavanda">${plural(r, "día seguido", "días seguidos")}</span>` : ""}</div>
     ${recomendada && !meditadoHoy() ? `<p class="note">Hoy es uno de tus días de más carga. Una pausa te puede sentar muy bien.</p>` : ""}
     <div class="timer"><svg viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="104" fill="var(--lavanda)"/><circle cx="110" cy="110" r="86" fill="var(--surface)"/>
       <circle id="timerArc" cx="110" cy="110" r="95" fill="none" stroke="var(--pink)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="0" transform="rotate(-90 110 110)"/></svg>
       <div class="timer-center"><b id="timerTxt">${mmss(med.restante)}</b><span class="muted small">${med.estado === "parado" ? "minutos" : "restantes"}</span></div></div>
     <div class="durs">${[5, 10, 15, 20].map(n => `<button data-min="${n}" aria-pressed="${med.minutos === n}" ${med.estado !== "parado" ? "disabled" : ""}>${n} min</button>`).join("")}</div>
-    <div class="card" style="gap:0">
-      <div class="switch-row"><span id="lg1">Gong al empezar</span><button class="switch" role="switch" aria-labelledby="lg1" aria-checked="${med.gongInicio}" data-gong="gongInicio"></button></div>
-      <div class="switch-row"><span id="lg2">Gong al terminar</span><button class="switch" role="switch" aria-labelledby="lg2" aria-checked="${med.gongFin}" data-gong="gongFin"></button></div>
-    </div>
     <div style="display:grid;grid-template-columns:${med.estado === "parado" ? "1fr" : "1fr 1fr"};gap:10px">
       <button class="btn primary" id="btnMed">${accion}</button>
       ${med.estado !== "parado" ? `<button class="btn outline" id="btnStop">Terminar</button>` : ""}
     </div>
-    <h2 style="margin-top:8px">Recordatorios</h2>
-    <p class="muted small">La sugerencia aparecerá en tu pantalla de Hoy los días que toque.</p>
-    <button class="opcion" role="radio" aria-checked="${auto}" data-rec="auto"><span class="radio"></span><span><b>Que lo decida SHEblooms</b><small>Te lo sugerimos los últimos días antes del periodo y los primeros del periodo.</small></span></button>
-    <div class="opcion" role="radio" aria-checked="${!auto}" data-rec="fases" tabindex="0"><span class="radio"></span><span style="flex:1"><b>Elegir yo las fases</b>
-      <span class="chips" style="margin-top:8px">${ORDEN.map(f => `<button class="chip" data-fasemed="${f}" aria-pressed="${!auto && (cfg.fasesMed || []).includes(f)}">${FASES[f].nombre.replace("Fase ", "")}</button>`).join("")}</span></span></div>
+    <div style="text-align:center"><button class="btn link" id="ajMed">Ajustes: gong y recordatorios</button></div>
   </div>`;
   pintarTimer();
   document.querySelectorAll("[data-min]").forEach(b => b.onclick = () => { med.minutos = +b.dataset.min; med.restante = med.minutos * 60; renderMed(); });
-  document.querySelectorAll("[data-gong]").forEach(b => b.onclick = () => { med[b.dataset.gong] = !med[b.dataset.gong]; b.setAttribute("aria-checked", med[b.dataset.gong]); });
+  $("#ajMed").onclick = ajustesMeditacion;
   $("#btnMed").onclick = () => {
     if (med.estado === "corriendo") { clearInterval(med.intervalo); med.restante = Math.max(0, (med.fin - Date.now()) / 1000); med.estado = "pausado"; }
     else {
@@ -1242,52 +1396,44 @@ function renderMed() {
     const restante = med.estado === "corriendo" ? Math.max(0, (med.fin - Date.now()) / 1000) : med.restante;
     terminarMeditacion(Math.floor((med.minutos * 60 - restante) / 60));
   };
-  const guardarRec = async (recordatorio, fasesMed) => { state.config = { ...state.config, recordatorio, fasesMed }; renderMed(); try { await guardarPerfil(state.config); } catch (e) {} };
-  document.querySelector('[data-rec="auto"]').onclick = () => guardarRec("auto", state.config.fasesMed || []);
-  const opF = document.querySelector('[data-rec="fases"]');
-  opF.onclick = e => { if (!e.target.closest("[data-fasemed]") && state.config.recordatorio !== "fases") guardarRec("fases", state.config.fasesMed?.length ? state.config.fasesMed : ["menstrual", "lutea"]); };
-  opF.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); opF.onclick(e); } };
-  document.querySelectorAll("[data-fasemed]").forEach(b => b.onclick = () => {
-    const f = b.dataset.fasemed, set = new Set(state.config.recordatorio === "fases" ? state.config.fasesMed || [] : []);
-    set.has(f) ? set.delete(f) : set.add(f);
-    guardarRec("fases", [...set]);
-  });
 }
 
 /* =========================================================
-   PANTALLA: ASISTENTE
-   Llama a la función "asistente" de Supabase, que es la que habla
-   con la IA usando la clave guardada en Supabase (nunca aquí).
+   ASISTENTE (botón flotante, con el contexto de la sección)
+   Llama a la función "asistente" de Supabase, que habla con la IA
+   usando la clave guardada en Supabase (nunca aquí).
    ========================================================= */
 const chat = [];
-let pensando = false;
+let pensando = false, asisDesde = "hoy";
+$("#fab").onclick = () => { asisDesde = ["ciclo", "act", "ali"].includes(vista) ? vista : "hoy"; irA("asis"); };
 function contexto() {
   const hoy = today(), { dia, fase, retraso } = infoFecha(hoy), F = FASES[fase];
   const sint = [], ents = [];
   for (let i = 0; i < 7; i++) {
     const k = toKey(addDays(hoy, -i)), r = state.sintomas[k];
-    if (r) sint.push(`${k}: ${r.lista.join(", ") || "sin síntomas"}${r.energia ? `, energía ${r.energia}/5` : ""}${r.nota ? `, nota: ${r.nota}` : ""}`);
+    if (r) sint.push(`${k}: ${r.lista.join(", ") || "sin síntomas"}${r.energia ? `, energía ${r.energia}/5` : ""}${r.sueno ? `, durmió ${SUENO[r.sueno].toLowerCase()}` : ""}${r.nota ? `, nota: ${r.nota}` : ""}`);
     entrenosDe(k).forEach(e => ents.push(`${k}: ${resumenEntreno(e)}${e.fc_media ? `, FC media ${e.fc_media}` : ""}${e.esfuerzo ? `, esfuerzo ${ESFUERZO[e.esfuerzo].toLowerCase()}` : ""}${e.ejercicios ? `, ejercicios: ${e.ejercicios}` : ""}`));
   }
   const m = menuDe(hoy, fase);
-  return `Hoy es ${fmtLargo(hoy)}. Está en el día ${dia} de su ciclo (ciclo de ${state.config.ciclo} días, periodo de ${state.config.regla} días), ${F.nombre.toLowerCase()}${retraso ? `, con un retraso de ${retraso} días` : ""}. ` +
+  return `La usuaria pregunta desde la sección "${NOMBRE_SECCION[asisDesde]}" de la app. Hoy es ${fmtLargo(hoy)}. Está en el día ${dia} de su ciclo (ciclo de ${state.config.ciclo} días, periodo de ${state.config.regla} días), ${F.nombre.toLowerCase()}${retraso ? `, con un retraso de ${retraso} días` : ""}. ` +
     `Próximo periodo estimado: ${fmtLargo(proximaRegla())}. ` +
-    `Síntomas de los últimos 7 días: ${sint.length ? sint.join(" | ") : "no ha anotado nada"}. ` +
-    `Entrenos de los últimos 7 días: ${ents.length ? ents.join(" | ") : "ninguno"}. ` +
+    `Síntomas, energía y sueño de los últimos 7 días: ${sint.length ? sint.join(" | ") : "no ha anotado nada"}. ` +
+    `Actividad física de los últimos 7 días: ${ents.length ? ents.join(" | ") : "ninguna"}. ` +
     `Racha de meditación: ${racha()} días. ` +
     `Menú sugerido hoy por la app: ${m.desayuno[0]}; ${m.comida[0]}; ${m.cena[0]}. Ejercicio recomendado: ${F.ejercicio.etiqueta.toLowerCase()} (${F.ejercicio.actividades.join(", ")}).`;
 }
 function renderAsis() {
   const { dia, fase } = infoFecha(today());
+  const fondo = { ali: "var(--melocoton)", act: "var(--menta)", ciclo: "var(--sand)", hoy: "var(--sand)" }[asisDesde];
   const burbujas = chat.map(m => `<div class="msg ${m.role === "user" ? "yo" : m.aviso ? "aviso" : "ia"}">${esc(m.content)}</div>`).join("");
-  $("#v-asis").innerHTML = `<div class="stack" style="padding-bottom:150px">
-    <h1>Tu asistente</h1>
-    <p class="note">Respondo teniendo en cuenta tu contexto: día ${dia}, ${FASES[fase].nombre.toLowerCase()}, tus síntomas y tus entrenos de esta semana.</p>
-    <div class="chat">${burbujas || `<div class="msg ia">¡Hola! Pregúntame lo que quieras sobre tu ciclo, qué comer o cómo entrenar estos días.</div>`}${pensando ? `<div class="msg ia muted">Pensando…</div>` : ""}</div>
+  $("#v-asis").innerHTML = `<div class="stack" style="padding-bottom:170px">
+    <div class="cab"><h1>Tu asistente</h1><button class="iconbtn" data-ir="${asisDesde}" aria-label="Cerrar asistente">✕</button></div>
+    <p class="note" style="background:${fondo};color:var(--ink)">Desde ${NOMBRE_SECCION[asisDesde]} · día ${dia}, ${FASES[fase].nombre.toLowerCase()}. Tengo en cuenta tus síntomas, tu sueño y tu actividad.</p>
+    <div class="chat">${burbujas || `<div class="msg ia">¡Hola! Pregúntame lo que quieras sobre tu ciclo, qué comer o cómo moverte estos días.</div>`}${pensando ? `<div class="msg ia muted">Pensando…</div>` : ""}</div>
     <p class="disclaimer" style="margin-top:4px">Información general. No sustituye a un profesional sanitario.</p>
   </div>
   <div class="composer"><div class="inner">
-    <div class="sugs">${SUGERENCIAS_ASISTENTE.map(s => `<button class="chip" data-sug="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+    <div class="sugs">${SUGERENCIAS[asisDesde].map(s => `<button class="chip" data-sug="${esc(s)}">${esc(s)}</button>`).join("")}</div>
     <form id="formChat"><label class="sr" for="pregunta">Escribe tu pregunta</label><input type="text" id="pregunta" placeholder="Pregúntame lo que quieras" autocomplete="off" ${pensando ? "disabled" : ""}>
       <button class="send" type="submit" aria-label="Enviar" ${pensando ? "disabled" : ""}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFDF9" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></form>
   </div></div>`;
@@ -1307,14 +1453,14 @@ async function preguntar(texto) {
     chat.push({ role: "assistant", content: data.texto });
   } catch (e) {
     console.warn(e);
-    chat.push({ role: "assistant", aviso: true, content: "El asistente todavía no está activado o no ha podido responder. Si ya está configurado, inténtalo de nuevo en un momento." });
+    chat.push({ role: "assistant", aviso: true, content: "El asistente no ha podido responder ahora mismo. Inténtalo de nuevo en un momento." });
   }
   pensando = false;
   if (vista === "asis") renderAsis();
 }
 
 /* =========================================================
-   AJUSTES Y DATOS DE EJEMPLO
+   MI PERFIL Y DATOS DE EJEMPLO
    ========================================================= */
 function renderAjustes() {
   $("#cuentaEmail").textContent = usuaria ? "Has entrado como " + usuaria.email : "";
@@ -1323,9 +1469,12 @@ function renderAjustes() {
   form.onsubmit = e => { e.preventDefault(); ocupado(form.querySelector("button"), async () => { await guardarCiclo(leerForm(form)); toast("Cambios guardados"); irA("hoy"); }); };
 }
 async function cargarDemo() {
-  // Datos inventados: 9 ciclos (unos 8 meses), síntomas casi diarios,
-  // entrenos de las últimas 16 semanas y una semana actual bien completa.
-  const hoy = today(), C = 28, ultima = addDays(hoy, -21); // hoy: día 22, fase lútea
+  // Datos inventados, pensados para la presentación:
+  // 9 ciclos (unos 8 meses), hoy día 22 de la fase lútea.
+  // Semana actual (de lunes a hoy): carrera el lunes, fuerza el martes y meditación el lunes.
+  // Semana anterior: meditación de miércoles a domingo y 2 actividades suaves.
+  // Hoy queda sin sueño ni síntomas, para registrarlos en directo.
+  const hoy = today(), C = 28, ultima = addDays(hoy, -21);
   const demo = vacio();
   demo.config = { ultimaRegla: toKey(ultima), ciclo: C, regla: 5, recordatorio: "auto", fasesMed: [] };
   const largos = [28, 29, 27, 28, 30, 28, 27, 29], durs = [5, 5, 4, 6, 5, 5, 4, 6, 5];
@@ -1334,57 +1483,58 @@ async function cargarDemo() {
   const anterior = state; state = demo;
   let semilla = 11; const rnd = () => (semilla = (semilla * 9301 + 49297) % 233280) / 233280;
   const elegir = arr => arr[Math.floor(rnd() * arr.length)];
-  const lunes = addDays(hoy, -6); // "esta semana" = los últimos 7 días, como en el resumen de Hoy
-  const estaSemana = d => d >= lunes && d <= hoy;
+  const lunes = lunesDe(hoy), lunesPasado = addDays(lunes, -7);
   const primero = fromKey(demo.periodos[demo.periodos.length - 1].fecha);
 
-  // Entrenos
-  const tiposPorFase = { menstrual: ["yoga", "caminar"], folicular: ["correr", "fuerza", "bici", "fuerza", "correr"], ovulatoria: ["correr", "fuerza", "correr", "bici"], lutea: ["pilates", "fuerza", "caminar", "yoga", "correr"] };
-  const probPorFase = { menstrual: .2, folicular: .55, ovulatoria: .6, lutea: .4 };
+  // Actividad
   const zonasRot = [["Pierna", "Glúteo"], ["Espalda", "Brazos", "Core"], ["Cuerpo completo"], ["Pecho", "Hombros", "Core"]];
   const ejerciciosRot = ["Sentadilla 4×10 con 35 kg, hip thrust 4×12 con 50 kg, zancadas 3×12", "Remo con barra 4×10, dominadas asistidas 3×8, plancha 3×45 s", "Circuito: peso muerto, press, sentadilla y burpees, 4 rondas", "Press banca 4×8 con 30 kg, press militar 3×10, flexiones 3×12"];
-  const hacerEntreno = (f, tipo, info) => {
+  const hacer = (f, tipo, info) => {
     const fuerte = info.fase === "folicular" || info.fase === "ovulatoria";
-    const e = { fecha: toKey(f), tipo, esfuerzo: Math.max(1, Math.min(5, (fuerte ? 4 : 3) + (rnd() < .3 ? -1 : 0) + (rnd() < .2 ? 1 : 0))) };
-    if (tipo === "correr") { const km = Math.round((4.5 + rnd() * 4) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * (fuerte ? 5.5 : 6.2) + rnd() * 3), fc_media: Math.round(145 + rnd() * 15), fc_max: Math.round(168 + rnd() * 14) }); }
-    if (tipo === "caminar") { const km = Math.round((3.5 + rnd() * 3) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 12), pasos: Math.round(km * 1400), fc_media: Math.round(98 + rnd() * 12), esfuerzo: 1 + (rnd() < .4 ? 1 : 0) }); }
-    if (tipo === "bici") { const km = Math.round(15 + rnd() * 20); Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 2.6), fc_media: Math.round(132 + rnd() * 15), fc_max: Math.round(160 + rnd() * 12) }); }
-    if (tipo === "fuerza") { const i = Math.floor(rnd() * 4); Object.assign(e, { duracion_min: 45 + Math.round(rnd() * 20), zonas: zonasRot[i], ejercicios: ejerciciosRot[i], fc_media: Math.round(112 + rnd() * 15) }); }
-    if (tipo === "yoga" || tipo === "pilates") Object.assign(e, { duracion_min: 30 + Math.round(rnd() * 25), esfuerzo: 2, zonas: tipo === "pilates" ? ["Core"] : [] });
+    const e = { fecha: toKey(f), tipo, zonas: [], esfuerzo: Math.max(1, Math.min(5, (fuerte ? 4 : 3) + (rnd() < .3 ? -1 : 0))) };
+    if (tipo === "correr") { const km = Math.round((4.5 + rnd() * 3.5) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * (fuerte ? 5.6 : 6.1)), fc_media: Math.round(145 + rnd() * 12), fc_max: Math.round(166 + rnd() * 12) }); }
+    if (tipo === "caminar") { const km = Math.round((3.5 + rnd() * 3) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 12), pasos: Math.round(km * 1400), fc_media: Math.round(98 + rnd() * 10), esfuerzo: 1 }); }
+    if (tipo === "bici") { const km = Math.round(15 + rnd() * 15); Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 2.6), fc_media: Math.round(132 + rnd() * 12), fc_max: Math.round(158 + rnd() * 10) }); }
+    if (tipo === "fuerza") { const i = Math.floor(rnd() * 4); Object.assign(e, { duracion_min: 45 + Math.round(rnd() * 15), zonas: zonasRot[i], ejercicios: ejerciciosRot[i], fc_media: Math.round(112 + rnd() * 12) }); }
+    if (tipo === "yoga" || tipo === "pilates") Object.assign(e, { duracion_min: 30 + Math.round(rnd() * 20), esfuerzo: 2, zonas: tipo === "pilates" ? ["Core"] : [] });
     return e;
   };
-  for (let f = addDays(hoy, -112); f <= hoy; f = addDays(f, 1)) {
-    if (estaSemana(f)) continue;
+  const tiposPorFase = { menstrual: ["yoga", "caminar"], folicular: ["correr", "fuerza", "bici", "correr"], ovulatoria: ["correr", "fuerza", "bici"], lutea: ["pilates", "fuerza", "caminar", "yoga"] };
+  const probPorFase = { menstrual: .1, folicular: .4, ovulatoria: .45, lutea: .28 };
+  for (let f = addDays(hoy, -112); f < lunesPasado; f = addDays(f, 1)) {
     const info = infoFecha(f);
-    if (rnd() < probPorFase[info.fase]) demo.entrenos.push(hacerEntreno(f, elegir(tiposPorFase[info.fase]), info));
+    if (rnd() < probPorFase[info.fase]) demo.entrenos.push(hacer(f, elegir(tiposPorFase[info.fase]), info));
   }
-  // Esta semana: un entreno casi cada día, también hoy
-  const planSemana = ["correr", "fuerza", "caminar", "pilates", "correr", "fuerza", "yoga"];
-  for (let f = lunes, i = 0; f <= hoy; f = addDays(f, 1), i++) if (i !== 2 || +f === +hoy) demo.entrenos.push(hacerEntreno(f, +f === +hoy ? "pilates" : planSemana[i], infoFecha(f)));
+  demo.entrenos.push(hacer(addDays(lunesPasado, 1), "caminar", infoFecha(addDays(lunesPasado, 1))));
+  demo.entrenos.push(hacer(addDays(lunesPasado, 4), "yoga", infoFecha(addDays(lunesPasado, 4))));
+  if (lunes <= hoy) demo.entrenos.push(hacer(lunes, "correr", infoFecha(lunes)));
+  if (addDays(lunes, 1) <= hoy) demo.entrenos.push(hacer(addDays(lunes, 1), "fuerza", infoFecha(addDays(lunes, 1))));
 
-  // Síntomas, energía y notas
+  // Síntomas, energía, sueño y notas (hoy queda vacío)
   const porFase = {
     menstrual: [["Dolor abdominal", .8], ["Cansancio", .7], ["Dolor lumbar", .5], ["Dolor de cabeza", .25], ["Flujo abundante", .4]],
     folicular: [["Acné", .1]], ovulatoria: [["Sensibilidad en el pecho", .4]],
     lutea: [["Hinchazón", .55], ["Antojos", .5], ["Irritabilidad", .4], ["Acné", .35], ["Insomnio", .2], ["Sensibilidad en el pecho", .3]]
   };
-  const energia = { menstrual: 2, folicular: 4, ovulatoria: 5, lutea: 3 };
+  const energia = { menstrual: 2, folicular: 4, ovulatoria: 5, lutea: 3 }, suenoBase = { menstrual: 3, folicular: 4, ovulatoria: 4, lutea: 3 };
   const notas = { menstrual: ["Me duele bastante la tripa, he usado la bolsa de calor", "Día tranquilo en casa"], folicular: ["¡Mucha energía hoy!", "Me he sentido muy concentrada en el trabajo"], ovulatoria: ["Buen día, con ganas de todo", "He dormido genial"], lutea: ["Me noto más hinchada", "Con antojos de dulce toda la tarde", "He dormido regular"] };
-  const diasEntreno = new Set(demo.entrenos.map(e => e.fecha));
-  for (let f = primero; f <= hoy; f = addDays(f, 1)) {
-    const k = toKey(f), semana = estaSemana(f);
-    if (!semana && rnd() < .2) continue;
+  const diasAct = new Set(demo.entrenos.map(e => e.fecha));
+  for (let f = primero; f < hoy; f = addDays(f, 1)) {
+    const reciente = f >= lunesPasado;
+    if (!reciente && rnd() < .2) continue;
     const info = infoFecha(f);
     const lista = porFase[info.fase].filter(([, p]) => rnd() < p * (info.fase === "lutea" && info.dia < 20 ? .4 : 1)).map(([s]) => s);
-    if (semana && info.fase === "lutea" && !lista.length) lista.push("Hinchazón");
+    if (reciente && info.fase === "lutea" && info.dia >= 19 && !lista.length) lista.push(rnd() < .5 ? "Hinchazón" : "Antojos");
     let e = energia[info.fase] + (rnd() < .3 ? -1 : 0) + (rnd() < .2 ? 1 : 0);
-    if (diasEntreno.has(toKey(addDays(f, -1))) && rnd() < .5) e++;
-    demo.sintomas[k] = { lista, energia: Math.max(1, Math.min(5, e)), nota: semana || rnd() < .1 ? elegir(notas[info.fase]) : "" };
+    if (diasAct.has(toKey(addDays(f, -1))) && rnd() < .5) e++;
+    const sueno = Math.max(1, Math.min(5, suenoBase[info.fase] + (rnd() < .25 ? -1 : 0) + (rnd() < .2 ? 1 : 0) - (lista.includes("Insomnio") ? 2 : 0)));
+    demo.sintomas[toKey(f)] = { lista, energia: Math.max(1, Math.min(5, e)), nota: reciente || rnd() < .1 ? elegir(notas[info.fase]) : "", sueno };
   }
 
-  // Meditaciones: racha de 6 días que termina ayer (para poder completar hoy en directo) y otras sueltas
-  for (let i = 1; i <= 6; i++) demo.meditaciones.push({ fecha: toKey(addDays(hoy, -i)), minutos: [10, 5, 10, 15, 10, 5][i - 1] });
-  for (let f = addDays(hoy, -90); f < addDays(hoy, -7); f = addDays(f, 1)) {
+  // Meditación: de miércoles a domingo de la semana pasada + lunes de esta semana (si ya ha pasado), y otras sueltas
+  for (let i = 2; i <= 6; i++) demo.meditaciones.push({ fecha: toKey(addDays(lunesPasado, i)), minutos: [10, 5, 10, 15, 10][i - 2] });
+  if (lunes < hoy) demo.meditaciones.push({ fecha: toKey(lunes), minutos: 10 });
+  for (let f = addDays(hoy, -90); f < lunesPasado; f = addDays(f, 1)) {
     const info = infoFecha(f), carga = info.fase === "menstrual" || info.dia >= C - 4;
     if (rnd() < (carga ? .6 : .15)) demo.meditaciones.push({ fecha: toKey(f), minutos: elegir([5, 10, 10, 15, 20]) });
   }
@@ -1393,8 +1543,8 @@ async function cargarDemo() {
     for (const t of ["registros_diarios", "periodos", "entrenos", "meditaciones"]) comprobar(await sb.from(t).delete().eq("usuaria_id", usuaria.id));
     await guardarPerfil(demo.config);
     comprobar(await sb.from("periodos").insert(demo.periodos.map(p => ({ usuaria_id: usuaria.id, fecha_inicio: p.fecha, duracion: p.duracion }))));
-    comprobar(await sb.from("registros_diarios").insert(Object.entries(demo.sintomas).map(([fecha, d]) => ({ usuaria_id: usuaria.id, fecha, sintomas: d.lista, energia: d.energia, nota: d.nota || null }))));
-    comprobar(await sb.from("entrenos").insert(demo.entrenos.map(e => ({ zonas: [], ...e, usuaria_id: usuaria.id }))));
+    comprobar(await sb.from("registros_diarios").insert(Object.entries(demo.sintomas).map(([fecha, d]) => ({ usuaria_id: usuaria.id, fecha, sintomas: d.lista, energia: d.energia, nota: d.nota || null, sueno: d.sueno }))));
+    comprobar(await sb.from("entrenos").insert(demo.entrenos.map(e => ({ ...e, usuaria_id: usuaria.id }))));
     comprobar(await sb.from("meditaciones").insert(demo.meditaciones.map(m => ({ ...m, usuaria_id: usuaria.id }))));
     await cargarDatos();
   } catch (e) { state = anterior; return; }
@@ -1404,9 +1554,11 @@ async function cargarDemo() {
 /* =========================================================
    RENDER GENERAL, ACCESO Y ARRANQUE
    ========================================================= */
+const SIN_BARRA = ["ajustes", "entreno", "asis", "sint"];
 function render() {
   const dentro = !!usuaria, listo = dentro && !!state.config;
-  $("#tabs").hidden = !listo || ["ajustes", "entreno"].includes(vista);
+  $("#tabs").hidden = !listo || SIN_BARRA.includes(vista);
+  $("#fab").hidden = !listo || SIN_BARRA.includes(vista);
   if (!dentro) return mostrar(vista === "signup" ? "signup" : "auth");
   if (!listo) {
     if (recienRegistrada) return mostrar("gracias");
@@ -1419,15 +1571,15 @@ function render() {
     return;
   }
   mostrar(vista);
-  ({ hoy: renderHoy, cal: renderCal, sint: renderSint, bien: renderBien, med: renderMed, asis: renderAsis, ajustes: renderAjustes, entreno: renderEntreno }[vista] || renderHoy)();
+  ({ hoy: renderHoy, ciclo: renderCiclo, act: renderAct, ali: renderAli, cal: renderCal, sint: renderSint, med: renderMed, asis: renderAsis, ajustes: renderAjustes, entreno: renderEntreno }[vista] || renderHoy)();
 }
 
 document.querySelectorAll("nav.tabs [data-tab]").forEach(b => b.onclick = () => irA(b.dataset.tab));
 document.addEventListener("click", e => {
-  if (e.target.closest("[data-sint-hoy]")) { fechaSint = today(); borrador = null; return irA("sint"); }
+  if (e.target.closest("[data-sint-hoy]")) return abrirSintomas(today(), "hoy");
   const el = e.target.closest("[data-ir]");
   if (!el) return;
-  if (el.dataset.bien) pestanaBien = el.dataset.bien;
+  if (el.dataset.ir === "cal") { diaSel = today(); mesCal = new Date(diaSel.getFullYear(), diaSel.getMonth(), 1); }
   irA(el.dataset.ir);
 });
 
@@ -1471,7 +1623,7 @@ $("#btnSalir").onclick = async () => { await sb.auth.signOut(); usuaria = null; 
 $("#btnDemo").onclick = e => ocupado(e.currentTarget, cargarDemo);
 $("#btnDemo2").onclick = e => { if (confirm("Esto sustituirá tus datos actuales por datos inventados. ¿Continuar?")) ocupado(e.currentTarget, cargarDemo); };
 $("#btnBorrar").onclick = e => {
-  if (!confirm("Se borrarán tu ciclo, tus síntomas, tus entrenos y tus meditaciones. ¿Seguro?")) return;
+  if (!confirm("Se borrarán tu ciclo, tus síntomas, tu actividad y tus meditaciones. ¿Seguro?")) return;
   ocupado(e.currentTarget, async () => { await borrarTodo(); state = vacio(); $("#formOnboard").innerHTML = ""; vista = "hoy"; render(); toast("Datos borrados"); });
 };
 
