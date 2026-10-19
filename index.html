@@ -1323,38 +1323,78 @@ function renderAjustes() {
   form.onsubmit = e => { e.preventDefault(); ocupado(form.querySelector("button"), async () => { await guardarCiclo(leerForm(form)); toast("Cambios guardados"); irA("hoy"); }); };
 }
 async function cargarDemo() {
-  const hoy = today(), C = 28, ultima = addDays(hoy, -11);
+  // Datos inventados: 9 ciclos (unos 8 meses), síntomas casi diarios,
+  // entrenos de las últimas 16 semanas y una semana actual bien completa.
+  const hoy = today(), C = 28, ultima = addDays(hoy, -21); // hoy: día 22, fase lútea
   const demo = vacio();
   demo.config = { ultimaRegla: toKey(ultima), ciclo: C, regla: 5, recordatorio: "auto", fasesMed: [] };
-  demo.periodos = [[-112, 5], [-84, 4], [-55, 6], [-28, 5], [0, 5]].map(([o, d]) => ({ fecha: toKey(addDays(ultima, o)), duracion: d }));
+  const largos = [28, 29, 27, 28, 30, 28, 27, 29], durs = [5, 5, 4, 6, 5, 5, 4, 6, 5];
+  let ini = ultima; demo.periodos.push({ fecha: toKey(ini), duracion: durs[0] });
+  largos.forEach((l, i) => { ini = addDays(ini, -l); demo.periodos.push({ fecha: toKey(ini), duracion: durs[i + 1] }); });
   const anterior = state; state = demo;
+  let semilla = 11; const rnd = () => (semilla = (semilla * 9301 + 49297) % 233280) / 233280;
+  const elegir = arr => arr[Math.floor(rnd() * arr.length)];
+  const lunes = addDays(hoy, -6); // "esta semana" = los últimos 7 días, como en el resumen de Hoy
+  const estaSemana = d => d >= lunes && d <= hoy;
+  const primero = fromKey(demo.periodos[demo.periodos.length - 1].fecha);
+
+  // Entrenos
+  const tiposPorFase = { menstrual: ["yoga", "caminar"], folicular: ["correr", "fuerza", "bici", "fuerza", "correr"], ovulatoria: ["correr", "fuerza", "correr", "bici"], lutea: ["pilates", "fuerza", "caminar", "yoga", "correr"] };
+  const probPorFase = { menstrual: .2, folicular: .55, ovulatoria: .6, lutea: .4 };
+  const zonasRot = [["Pierna", "Glúteo"], ["Espalda", "Brazos", "Core"], ["Cuerpo completo"], ["Pecho", "Hombros", "Core"]];
+  const ejerciciosRot = ["Sentadilla 4×10 con 35 kg, hip thrust 4×12 con 50 kg, zancadas 3×12", "Remo con barra 4×10, dominadas asistidas 3×8, plancha 3×45 s", "Circuito: peso muerto, press, sentadilla y burpees, 4 rondas", "Press banca 4×8 con 30 kg, press militar 3×10, flexiones 3×12"];
+  const hacerEntreno = (f, tipo, info) => {
+    const fuerte = info.fase === "folicular" || info.fase === "ovulatoria";
+    const e = { fecha: toKey(f), tipo, esfuerzo: Math.max(1, Math.min(5, (fuerte ? 4 : 3) + (rnd() < .3 ? -1 : 0) + (rnd() < .2 ? 1 : 0))) };
+    if (tipo === "correr") { const km = Math.round((4.5 + rnd() * 4) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * (fuerte ? 5.5 : 6.2) + rnd() * 3), fc_media: Math.round(145 + rnd() * 15), fc_max: Math.round(168 + rnd() * 14) }); }
+    if (tipo === "caminar") { const km = Math.round((3.5 + rnd() * 3) * 10) / 10; Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 12), pasos: Math.round(km * 1400), fc_media: Math.round(98 + rnd() * 12), esfuerzo: 1 + (rnd() < .4 ? 1 : 0) }); }
+    if (tipo === "bici") { const km = Math.round(15 + rnd() * 20); Object.assign(e, { distancia_km: km, duracion_min: Math.round(km * 2.6), fc_media: Math.round(132 + rnd() * 15), fc_max: Math.round(160 + rnd() * 12) }); }
+    if (tipo === "fuerza") { const i = Math.floor(rnd() * 4); Object.assign(e, { duracion_min: 45 + Math.round(rnd() * 20), zonas: zonasRot[i], ejercicios: ejerciciosRot[i], fc_media: Math.round(112 + rnd() * 15) }); }
+    if (tipo === "yoga" || tipo === "pilates") Object.assign(e, { duracion_min: 30 + Math.round(rnd() * 25), esfuerzo: 2, zonas: tipo === "pilates" ? ["Core"] : [] });
+    return e;
+  };
+  for (let f = addDays(hoy, -112); f <= hoy; f = addDays(f, 1)) {
+    if (estaSemana(f)) continue;
+    const info = infoFecha(f);
+    if (rnd() < probPorFase[info.fase]) demo.entrenos.push(hacerEntreno(f, elegir(tiposPorFase[info.fase]), info));
+  }
+  // Esta semana: un entreno casi cada día, también hoy
+  const planSemana = ["correr", "fuerza", "caminar", "pilates", "correr", "fuerza", "yoga"];
+  for (let f = lunes, i = 0; f <= hoy; f = addDays(f, 1), i++) if (i !== 2 || +f === +hoy) demo.entrenos.push(hacerEntreno(f, +f === +hoy ? "pilates" : planSemana[i], infoFecha(f)));
+
+  // Síntomas, energía y notas
   const porFase = {
     menstrual: [["Dolor abdominal", .8], ["Cansancio", .7], ["Dolor lumbar", .5], ["Dolor de cabeza", .25], ["Flujo abundante", .4]],
     folicular: [["Acné", .1]], ovulatoria: [["Sensibilidad en el pecho", .4]],
     lutea: [["Hinchazón", .55], ["Antojos", .5], ["Irritabilidad", .4], ["Acné", .35], ["Insomnio", .2], ["Sensibilidad en el pecho", .3]]
   };
   const energia = { menstrual: 2, folicular: 4, ovulatoria: 5, lutea: 3 };
-  let semilla = 7; const rnd = () => (semilla = (semilla * 9301 + 49297) % 233280) / 233280;
-  for (let i = 60; i >= 1; i--) {
-    const f = addDays(hoy, -i); if (rnd() < .25) continue;
+  const notas = { menstrual: ["Me duele bastante la tripa, he usado la bolsa de calor", "Día tranquilo en casa"], folicular: ["¡Mucha energía hoy!", "Me he sentido muy concentrada en el trabajo"], ovulatoria: ["Buen día, con ganas de todo", "He dormido genial"], lutea: ["Me noto más hinchada", "Con antojos de dulce toda la tarde", "He dormido regular"] };
+  const diasEntreno = new Set(demo.entrenos.map(e => e.fecha));
+  for (let f = primero; f <= hoy; f = addDays(f, 1)) {
+    const k = toKey(f), semana = estaSemana(f);
+    if (!semana && rnd() < .2) continue;
     const info = infoFecha(f);
-    const lista = porFase[info.fase].filter(([, p]) => rnd() < p * (info.fase === "lutea" && info.dia < 22 ? .4 : 1)).map(([s]) => s);
-    demo.sintomas[toKey(f)] = { lista, energia: Math.max(1, Math.min(5, energia[info.fase] + (rnd() < .3 ? -1 : 0) + (rnd() < .2 ? 1 : 0))), nota: "" };
+    const lista = porFase[info.fase].filter(([, p]) => rnd() < p * (info.fase === "lutea" && info.dia < 20 ? .4 : 1)).map(([s]) => s);
+    if (semana && info.fase === "lutea" && !lista.length) lista.push("Hinchazón");
+    let e = energia[info.fase] + (rnd() < .3 ? -1 : 0) + (rnd() < .2 ? 1 : 0);
+    if (diasEntreno.has(toKey(addDays(f, -1))) && rnd() < .5) e++;
+    demo.sintomas[k] = { lista, energia: Math.max(1, Math.min(5, e)), nota: semana || rnd() < .1 ? elegir(notas[info.fase]) : "" };
   }
-  const plantillas = [
-    { tipo: "correr", duracion_min: 32, distancia_km: 5.4, fc_media: 152, fc_max: 174, esfuerzo: 3 },
-    { tipo: "fuerza", duracion_min: 50, zonas: ["Pierna", "Glúteo", "Core"], ejercicios: "Sentadilla 4×10 con 35 kg, hip thrust 4×12 con 50 kg, plancha 3×45 s", fc_media: 118, esfuerzo: 4 },
-    { tipo: "caminar", duracion_min: 55, distancia_km: 5.1, pasos: 7400, fc_media: 104, esfuerzo: 1 },
-    { tipo: "yoga", duracion_min: 40, esfuerzo: 2 }
-  ];
-  [-1, -3, -5, -8, -10, -13, -16, -19, -22, -26].forEach((o, i) => demo.entrenos.push({ ...plantillas[i % 4], fecha: toKey(addDays(hoy, o)) }));
-  [-1, -2, -3, -4, -7, -9, -12].forEach(o => demo.meditaciones.push({ fecha: toKey(addDays(hoy, o)), minutos: [10, 5, 10, 15][Math.abs(o) % 4] }));
+
+  // Meditaciones: racha de 6 días que termina ayer (para poder completar hoy en directo) y otras sueltas
+  for (let i = 1; i <= 6; i++) demo.meditaciones.push({ fecha: toKey(addDays(hoy, -i)), minutos: [10, 5, 10, 15, 10, 5][i - 1] });
+  for (let f = addDays(hoy, -90); f < addDays(hoy, -7); f = addDays(f, 1)) {
+    const info = infoFecha(f), carga = info.fase === "menstrual" || info.dia >= C - 4;
+    if (rnd() < (carga ? .6 : .15)) demo.meditaciones.push({ fecha: toKey(f), minutos: elegir([5, 10, 10, 15, 20]) });
+  }
+
   try {
     for (const t of ["registros_diarios", "periodos", "entrenos", "meditaciones"]) comprobar(await sb.from(t).delete().eq("usuaria_id", usuaria.id));
     await guardarPerfil(demo.config);
     comprobar(await sb.from("periodos").insert(demo.periodos.map(p => ({ usuaria_id: usuaria.id, fecha_inicio: p.fecha, duracion: p.duracion }))));
-    comprobar(await sb.from("registros_diarios").insert(Object.entries(demo.sintomas).map(([fecha, d]) => ({ usuaria_id: usuaria.id, fecha, sintomas: d.lista, energia: d.energia, nota: null }))));
-    comprobar(await sb.from("entrenos").insert(demo.entrenos.map(e => ({ ...e, usuaria_id: usuaria.id }))));
+    comprobar(await sb.from("registros_diarios").insert(Object.entries(demo.sintomas).map(([fecha, d]) => ({ usuaria_id: usuaria.id, fecha, sintomas: d.lista, energia: d.energia, nota: d.nota || null }))));
+    comprobar(await sb.from("entrenos").insert(demo.entrenos.map(e => ({ zonas: [], ...e, usuaria_id: usuaria.id }))));
     comprobar(await sb.from("meditaciones").insert(demo.meditaciones.map(m => ({ ...m, usuaria_id: usuaria.id }))));
     await cargarDatos();
   } catch (e) { state = anterior; return; }
